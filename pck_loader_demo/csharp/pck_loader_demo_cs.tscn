@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5mqscqcqxf0j"]
+
+[ext_resource type="PackedScene" uid="uid://coqxx48ucvmoi" path="res://pck_loader_demo/csharp/main/main.tscn" id="1_iq6mg"]
+
+[node name="PCKLoaderDemoCS" type="Node"]
+
+[node name="Main" parent="." instance=ExtResource("1_iq6mg")]

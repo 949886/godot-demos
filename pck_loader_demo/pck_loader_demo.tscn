@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://brvtl68vw780w"]
+
+[ext_resource type="PackedScene" uid="uid://cj8nvy86y6xd6" path="res://pck_loader_demo/main/main.tscn" id="1_s7iu2"]
+
+[node name="PCKLoaderDemo" type="Node"]
+
+[node name="Main" parent="." instance=ExtResource("1_s7iu2")]
