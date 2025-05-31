@@ -2,15 +2,13 @@
 extends EditorScript
 
 func _run():
-	print("Exporting DLC content to PCK file...")
+	print("Exporting extra script content to PCK file...")
 	
 	# Define the path where to save the PCK file
-	var output_path = "res://pck_loader_demo/gdscript/dlc/dlc_content.pck"
+	var output_path = "res://pck_loader_demo/gdscript/extra/extra_content.pck"
 	
 	# Define files to include in the PCK
 	var files = [
-		"res://pck_loader_demo/gdscript/dlc/dlc_scene.tscn",
-		"res://pck_loader_demo/gdscript/dlc/dlc_scene.gd",
 		"res://pck_loader_demo/gdscript/extra/extra_functionality.gd"
 	]
 	
@@ -35,6 +33,7 @@ func _run():
 	# Finish the packing process
 	packer.flush(false)
 	
-	print("PCK file created successfully: " + output_path)
-	print("To use this PCK file, run the main scene and click 'Load PCK'")
-	print("Note: You may need to manually update the PCK if you make changes to the DLC scene") 
+	print("Extra script PCK file created successfully: " + output_path)
+	print("This PCK contains extra GDScript functionality that can be loaded at runtime")
+	print("To use this PCK file, run the main scene and click 'Load Extra Script PCK'")
+	print("Note: You may need to manually update the PCK if you make changes to the extra script") 
