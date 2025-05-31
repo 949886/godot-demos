@@ -16,7 +16,7 @@ This demo showcases how to dynamically load content from PCK (Godot's packed sce
 
 1. **Generate the PCK file**:
    - Open Godot Editor
-   - Open `res://pck_loader_demo/dlc/export_pck.gd` in the script editor
+   - Open `res://pck_loader_demo/gdscript/dlc/export_pck.gd` in the script editor
    - Click Script Editor's `File > Run` menu option (or by pressing Ctrl + Shift + X) to generate the PCK file
 
 2. **Run the Demo**:

@@ -1,7 +1,7 @@
 extends Control
 
 var loaded_pck_path = ""
-var dlc_scene_path = "res://pck_loader_demo/dlc/dlc_scene.tscn"
+var dlc_scene_path = "res://pck_loader_demo/gdscript/dlc/dlc_scene.tscn"
 var dlc_instance = null
 var pck_file_path = "user://dlc_content.pck"
 
@@ -14,7 +14,7 @@ func _ready():
 	if not FileAccess.file_exists(pck_file_path):
 		# In a real application, the PCK would be downloaded or provided with the game
 		# For this demo, we'll use a local one in the project folder
-		var local_pck = "res://pck_loader_demo/dlc/dlc_content.pck"
+		var local_pck = "res://pck_loader_demo/gdscript/dlc/dlc_content.pck"
 		if FileAccess.file_exists(local_pck):
 			var source_file = FileAccess.open(local_pck, FileAccess.READ)
 			var dest_file = FileAccess.open(pck_file_path, FileAccess.WRITE)

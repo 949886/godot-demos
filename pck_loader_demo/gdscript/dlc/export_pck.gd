@@ -5,12 +5,12 @@ func _run():
 	print("Exporting DLC content to PCK file...")
 	
 	# Define the path where to save the PCK file
-	var output_path = "res://pck_loader_demo/dlc/dlc_content.pck"
+	var output_path = "res://pck_loader_demo/gdscript/dlc/dlc_content.pck"
 	
 	# Define files to include in the PCK
 	var files = [
-		"res://pck_loader_demo/dlc/dlc_scene.tscn",
-		"res://pck_loader_demo/dlc/dlc_scene.gd"
+		"res://pck_loader_demo/gdscript/dlc/dlc_scene.tscn",
+		"res://pck_loader_demo/gdscript/dlc/dlc_scene.gd"
 	]
 	
 	# Create a new PCKPacker instance
