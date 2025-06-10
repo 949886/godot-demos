@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://psbxjqqdstxg"]
 
-[ext_resource type="Script" path="res://network/http/NetworkTest.cs" id="1_mkhay"]
+[ext_resource type="Script" uid="uid://dxbfbiwge8xku" path="res://network/http/NetworkTest.cs" id="1_mkhay"]
 
 [node name="Network" type="Node2D"]
 

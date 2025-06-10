@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d315jfxxwpgcl"]
 
-[ext_resource type="Script" path="res://data/json/JsonTest.cs" id="1_ay4ny"]
+[ext_resource type="Script" uid="uid://colu5ujaw185t" path="res://data/json/JsonTest.cs" id="1_ay4ny"]
 
 [node name="Json" type="Control"]
 layout_mode = 3

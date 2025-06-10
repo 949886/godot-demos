@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://bdxslxlgd0hlc"]
 
-[ext_resource type="Script" path="res://pck_loader_demo/gdscript/dlc/dlc_scene.gd" id="1_xfbqn"]
-[ext_resource type="Script" path="res://pck_loader_demo/gdscript/extra/extra_functionality.gd" id="2_fyscn"]
+[ext_resource type="Script" uid="uid://dfgpw2v8jhhva" path="res://pck_loader_demo/gdscript/dlc/dlc_scene.gd" id="1_xfbqn"]
+[ext_resource type="Script" uid="uid://co8uv6cergtk6" path="res://pck_loader_demo/gdscript/extra/extra_functionality.gd" id="2_fyscn"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rgpus"]
 bg_color = Color(0.184314, 0.47451, 0.690196, 1)

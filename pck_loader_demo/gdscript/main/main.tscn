@@ -1,7 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cj8nvy86y6xd6"]
 
-[ext_resource type="Script" path="res://pck_loader_demo/gdscript/main/main.gd" id="1_2v3mr"]
-
+[ext_resource type="Script" uid="uid://cxdq5gvivmyhs" path="res://pck_loader_demo/gdscript/main/main.gd" id="1_2v3mr"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -106,4 +105,4 @@ offset_left = -300.0
 offset_top = 50.0
 offset_right = -50.0
 offset_bottom = 200.0
-grow_horizontal = 0 
+grow_horizontal = 0
