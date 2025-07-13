@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# About this project 
+
+This project is a collection of godot 4 demos.
+
+## Development Environment
+
+- Engine: Godot 4
+- Version: 4.4 (With UID for scripts.)
+- Language: C#
+
+## Rules
+
+1. Do not use if/else statement in gdshader.

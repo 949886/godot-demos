@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://bvgkp0yq2xqna"]
+
+[ext_resource type="Shader" uid="uid://yxvvk1yd5c0s" path="res://UI/GaussianBlur/frosted_glass.gdshader" id="1"]
+
+[resource]
+shader = ExtResource("1")
+shader_parameter/blur_strength = 3.0
+shader_parameter/transparency = 0.85
+shader_parameter/frost_amount = 0.25
+shader_parameter/tint_color = Color(0.9, 0.95, 1, 0.15)
+shader_parameter/distortion = 0.015
