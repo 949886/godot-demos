@@ -16,16 +16,16 @@ void fragment() {
     vec2 pixel_size = 1.0 / SCREEN_PIXEL_SIZE;
     vec4 blur_color = vec4(0.0);
     float total_weight = 0.0;
-    
+
     // Calculate sigma based on blur radius for proper Gaussian distribution
     float sigma = blur_radius / 3.0;
-    
+
     if (horizontal_pass) {
         // Horizontal pass
         for (int i = -blur_samples; i <= blur_samples; i++) {
             float offset = float(i) * blur_radius / float(blur_samples);
             vec2 sample_pos = SCREEN_UV + vec2(offset / pixel_size.x, 0.0);
-            
+
             float weight = gaussian(offset, sigma);
             blur_color += texture(SCREEN_TEXTURE, sample_pos) * weight;
             total_weight += weight;
@@ -35,18 +35,18 @@ void fragment() {
         for (int i = -blur_samples; i <= blur_samples; i++) {
             float offset = float(i) * blur_radius / float(blur_samples);
             vec2 sample_pos = SCREEN_UV + vec2(0.0, offset / pixel_size.y);
-            
+
             float weight = gaussian(offset, sigma);
             blur_color += texture(SCREEN_TEXTURE, sample_pos) * weight;
             total_weight += weight;
         }
     }
-    
+
     // Normalize by total weight
     blur_color /= total_weight;
-    
+
     // Apply tint
     vec4 final_color = mix(blur_color, tint_color, tint_color.a);
-    
+
     COLOR = vec4(final_color.rgb, transparency);
-} 
+}

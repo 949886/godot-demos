@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqxvn8yqxqxqx"]
+
+[ext_resource type="Script" uid="uid://cc2j402vswmc" path="res://Navigation/Demo/NavigationDemo.cs" id="1_0x0x0"]
+
+[node name="NavigationDemo" type="Node"]
+script = ExtResource("1_0x0x0")

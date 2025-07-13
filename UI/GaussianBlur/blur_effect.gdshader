@@ -14,7 +14,7 @@ vec3 rgb2hsv(vec3 c) {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
     vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-    
+
     float d = q.x - min(q.w, q.y);
     float e = 1.0e-10;
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
@@ -29,10 +29,10 @@ vec3 hsv2rgb(vec3 c) {
 void fragment() {
     vec2 tex_size = 1.0 / TEXTURE_PIXEL_SIZE;
     vec2 blur_size = blur_amount / tex_size;
-    
+
     vec4 sum = vec4(0.0);
     int samples = 9;
-    
+
     // Gaussian blur
     for (int x = -4; x <= 4; x++) {
         for (int y = -4; y <= 4; y++) {
@@ -41,15 +41,15 @@ void fragment() {
             sum += texture(TEXTURE, UV + offset) * weight;
         }
     }
-    
+
     sum /= 81.0; // Normalize weights
-    
+
     // Apply brightness and saturation adjustments
     vec3 hsv = rgb2hsv(sum.rgb);
     hsv.y *= saturation; // Saturation
     hsv.z *= brightness; // Brightness
-    
+
     vec3 final_color = hsv2rgb(hsv);
-    
+
     COLOR = vec4(final_color, sum.a);
-} 
+}
