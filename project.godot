@@ -22,3 +22,7 @@ config/icon="res://icon.svg"
 [dotnet]
 
 project/assembly_name="demos"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AS2P/plugin.cfg")
