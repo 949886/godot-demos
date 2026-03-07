@@ -2953,7 +2953,7 @@ animations = [{
 }],
 "loop": true,
 "name": &"heavy_attack",
-"speed": 60.0
+"speed": 30.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -3408,7 +3408,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_scsf6")
 }],
-"loop": true,
+"loop": false,
 "name": &"landing",
 "speed": 60.0
 }, {

@@ -485,7 +485,7 @@ script = ExtResource("1_rxgpf")
 texture_filter = 1
 position = Vector2(0, -31)
 sprite_frames = ExtResource("1_sq6pq")
-animation = &"attack1"
+animation = &"run"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=141883607]
 position = Vector2(6, -20)
@@ -495,10 +495,5 @@ shape = SubResource("CapsuleShape2D_xjagb")
 libraries/ = SubResource("AnimationLibrary_ekk66")
 
 [node name="AnimationTree" type="AnimationTree" parent="." unique_id=1247995380]
-active = false
 tree_root = ExtResource("3_86b3q")
 anim_player = NodePath("../AnimationPlayer")
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1308014378]
-position = Vector2(0, -21)
-zoom = Vector2(5, 5)

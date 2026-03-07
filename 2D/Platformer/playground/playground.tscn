@@ -309,4 +309,4 @@ offset_right = 1024.0
 offset_bottom = 576.0
 
 [node name="Shiro" parent="." unique_id=1029694513 instance=ExtResource("3_2jew8")]
-position = Vector2(437, 415)
+position = Vector2(437, 323)
