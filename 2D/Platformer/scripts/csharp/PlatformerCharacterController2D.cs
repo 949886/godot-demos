@@ -41,6 +41,8 @@ public partial class PlatformerCharacterController2D : Node2D
     [Export] private float dashDuration = 0.15f;
     [Export] private float dashCooldown = 0.8f;
     [Export] private int maxDashCharges = 2;
+    [Export] private float afterimageFadeDuration = 0.3f;
+    [Export] private Color afterimageColor = new Color(0.4f, 0.8f, 1.0f, 0.6f);
 
     #endregion
 
@@ -489,9 +491,10 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyFriction(dt, characterBody.IsOnFloor());
 
-        // Dash cancels attack
+        // Dash cancels attack — leave afterimage
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
+            SpawnAfterimage();
             ChangeState(State.Dash);
             return;
         }
@@ -510,9 +513,10 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyFriction(dt, characterBody.IsOnFloor());
 
-        // Dash cancels heavy attack
+        // Dash cancels heavy attack — leave afterimage
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
+            SpawnAfterimage();
             ChangeState(State.Dash);
             return;
         }
@@ -627,6 +631,32 @@ public partial class PlatformerCharacterController2D : Node2D
                 PlayAnimation("dash");
                 break;
         }
+    }
+
+    #endregion
+
+    #region Afterimage Effect
+
+    private void SpawnAfterimage()
+    {
+        // Create a ghost sprite at the current position
+        var ghost = new Sprite2D();
+        ghost.Texture = animatedSprite.SpriteFrames.GetFrameTexture(
+            animatedSprite.Animation, animatedSprite.Frame);
+        ghost.FlipH = animatedSprite.FlipH;
+        ghost.TextureFilter = CanvasItem.TextureFilterEnum.Nearest;
+
+        // Position the ghost in world space
+        ghost.GlobalPosition = animatedSprite.GlobalPosition;
+        ghost.Modulate = afterimageColor;
+
+        // Add to the scene tree (as sibling of root, so it doesn't move with character)
+        GetTree().CurrentScene.AddChild(ghost);
+
+        // Fade out and remove
+        var tween = ghost.CreateTween();
+        tween.TweenProperty(ghost, "modulate:a", 0.0f, afterimageFadeDuration);
+        tween.TweenCallback(Callable.From(() => ghost.QueueFree()));
     }
 
     #endregion
