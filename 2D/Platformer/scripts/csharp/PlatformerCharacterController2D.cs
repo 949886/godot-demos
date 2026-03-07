@@ -46,6 +46,16 @@ public partial class PlatformerCharacterController2D : Node2D
 
     #endregion
 
+    #region Wall Jump Parameters
+
+    [ExportGroup("Wall Jump")]
+    [Export] private bool enableWallJump = true;
+    [Export] private float wallSlideGravity = 150f;
+    [Export] private float wallJumpHorizontalSpeed = 300f;
+    [Export] private float wallJumpVerticalSpeed = -380f;
+
+    #endregion
+
     #region Attack Parameters
 
     [ExportGroup("Attack")]
@@ -72,6 +82,7 @@ public partial class PlatformerCharacterController2D : Node2D
         Attack3,
         HeavyAttack,
         Dash,
+        WallSlide,
         Die
     }
 
@@ -89,6 +100,9 @@ public partial class PlatformerCharacterController2D : Node2D
     private bool _attackButtonHeld = false;
     private bool _comboRequested = false;
     private bool _heavyAttackTriggered = false;
+
+    // Wall slide tracking
+    private int _wallDirection = 0; // -1 = wall on left, 1 = wall on right
 
     // Animations that should loop (all others play once)
     private static readonly string[] LoopingAnimations = { "idle", "run", "fall" };
@@ -163,6 +177,9 @@ public partial class PlatformerCharacterController2D : Node2D
             // case State.FallToIdle:
             //     ProcessFallToIdle(dt);
             //     break;
+            case State.WallSlide:
+                ProcessWallSlide(dt);
+                break;
             case State.Attack1:
             case State.Attack2:
             case State.Attack3:
@@ -460,6 +477,68 @@ public partial class PlatformerCharacterController2D : Node2D
         if (characterBody.IsOnFloor())
         {
             ChangeState(State.Landing);
+            return;
+        }
+
+        // Wall slide detection
+        if (enableWallJump && characterBody.IsOnWall() && !characterBody.IsOnFloor())
+        {
+            float inputDir = GetMoveInput();
+            var wallNormal = characterBody.GetWallNormal();
+            // Only wall slide if player is pressing toward the wall
+            if ((wallNormal.X > 0 && inputDir < -0.1f) || (wallNormal.X < 0 && inputDir > 0.1f))
+            {
+                _wallDirection = wallNormal.X > 0 ? -1 : 1;
+                ChangeState(State.WallSlide);
+            }
+        }
+    }
+
+    private void ProcessWallSlide(float dt)
+    {
+        // Slow gravity while on wall
+        var vel = characterBody.Velocity;
+        vel.Y = Mathf.Min(vel.Y + wallSlideGravity * dt, wallSlideGravity);
+        vel.X = 0;
+        characterBody.Velocity = vel;
+
+        // Face away from wall
+        UpdateFacing(-_wallDirection);
+
+        // Wall jump
+        if (Input.IsActionJustPressed("jump"))
+        {
+            var wjVel = characterBody.Velocity;
+            wjVel.X = -_wallDirection * wallJumpHorizontalSpeed;
+            wjVel.Y = wallJumpVerticalSpeed;
+            characterBody.Velocity = wjVel;
+            _hasDoubleJump = true; // Restore double jump
+            UpdateFacing(-_wallDirection);
+            ChangeState(State.Jump);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            ChangeState(State.Dash);
+            return;
+        }
+
+        // Let go of wall
+        float inputDir = GetMoveInput();
+        var wallNormal = characterBody.IsOnWall() ? characterBody.GetWallNormal() : Vector2.Zero;
+        bool stillOnWall = characterBody.IsOnWall() &&
+            ((_wallDirection == -1 && inputDir < -0.1f) || (_wallDirection == 1 && inputDir > 0.1f));
+
+        if (!stillOnWall)
+        {
+            ChangeState(State.Fall);
+            return;
+        }
+
+        if (characterBody.IsOnFloor())
+        {
+            ChangeState(State.Landing);
         }
     }
 
@@ -552,6 +631,7 @@ public partial class PlatformerCharacterController2D : Node2D
 
     private void ChangeState(State newState)
     {
+        var previousState = _currentState;
         _currentState = newState;
 
         switch (newState)
@@ -574,9 +654,13 @@ public partial class PlatformerCharacterController2D : Node2D
                 break;
 
             case State.Jump:
-                var jumpVel = characterBody.Velocity;
-                jumpVel.Y = jumpVelocity;
-                characterBody.Velocity = jumpVel;
+                // Wall jump already sets velocity, only set jump velocity for ground jumps
+                if (previousState != State.WallSlide)
+                {
+                    var jumpVel = characterBody.Velocity;
+                    jumpVel.Y = jumpVelocity;
+                    characterBody.Velocity = jumpVel;
+                }
                 PlayAnimation("jump");
                 break;
 
@@ -629,6 +713,10 @@ public partial class PlatformerCharacterController2D : Node2D
                 _dashRechargeTimer = dashCooldown;
                 _dashTimer = dashDuration;
                 PlayAnimation("dash");
+                break;
+
+            case State.WallSlide:
+                PlayAnimation("fall"); // Reuse fall animation for wall slide
                 break;
         }
     }
