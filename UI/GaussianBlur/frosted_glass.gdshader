@@ -15,33 +15,33 @@ float noise(vec2 uv) {
 void fragment() {
     vec2 blur_offset = vec2(blur_strength) / SCREEN_PIXEL_SIZE;
     vec4 blur_color = vec4(0.0);
-    
+
     // Multi-sample blur
     int samples = 9;
     float weight = 1.0 / float(samples);
-    
+
     for (int x = -1; x <= 1; x++) {
         for (int y = -1; y <= 1; y++) {
             vec2 offset = vec2(float(x), float(y)) * blur_offset;
             blur_color += texture(SCREEN_TEXTURE, SCREEN_UV + offset) * weight;
         }
     }
-    
+
     // Add distortion for more realistic glass effect
     vec2 distorted_uv = SCREEN_UV + vec2(
         sin(SCREEN_UV.y * 50.0) * distortion,
         cos(SCREEN_UV.x * 50.0) * distortion
     );
-    
+
     vec4 distorted_color = texture(SCREEN_TEXTURE, distorted_uv);
     blur_color = mix(blur_color, distorted_color, 0.3);
-    
+
     // Add frost noise pattern
     float frost_noise = noise(UV * 200.0);
     frost_noise = smoothstep(0.4, 0.6, frost_noise);
-    
+
     // Combine effects
     vec4 final_color = mix(blur_color, tint_color, frost_amount * frost_noise);
-    
+
     COLOR = vec4(final_color.rgb, transparency);
-} 
+}

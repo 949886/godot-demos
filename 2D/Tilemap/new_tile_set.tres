@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://ddmj1bk05mw1j"]
+[gd_resource type="TileSet" format=3 uid="uid://ddmj1bk05mw1j"]
 
 [ext_resource type="Texture2D" uid="uid://btb1gy6uhpfyq" path="res://2D/Tilemap/Example full tilesheet for a sidescrolling game 2.png" id="1_vro3b"]
 [ext_resource type="Texture2D" uid="uid://dxy8ek5mpgmnd" path="res://2D/Tilemap/Example full tilesheet for a sidescrolling game.png" id="2_s0y2p"]
