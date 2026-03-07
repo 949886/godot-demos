@@ -37,9 +37,10 @@ public partial class PlatformerCharacterController2D : Node2D
     #region Dash Parameters
 
     [ExportGroup("Dash")]
-    [Export] private float dashSpeed = 600f;
-    [Export] private float dashDuration = 0.3f;
+    [Export] private float dashSpeed = 1000f;
+    [Export] private float dashDuration = 0.15f;
     [Export] private float dashCooldown = 0.8f;
+    [Export] private int maxDashCharges = 2;
 
     #endregion
 
@@ -78,7 +79,8 @@ public partial class PlatformerCharacterController2D : Node2D
 
     // Dash tracking
     private float _dashTimer = 0f;
-    private float _dashCooldownTimer = 0f;
+    private int _dashCharges = 2;
+    private float _dashRechargeTimer = 0f;
 
     // Attack tracking
     private float _attackPressTime = 0f;
@@ -114,9 +116,16 @@ public partial class PlatformerCharacterController2D : Node2D
     {
         float dt = (float)delta;
 
-        // Update cooldown timers
-        if (_dashCooldownTimer > 0f)
-            _dashCooldownTimer -= dt;
+        // Recharge dash charges
+        if (_dashCharges < maxDashCharges)
+        {
+            _dashRechargeTimer -= dt;
+            if (_dashRechargeTimer <= 0f)
+            {
+                _dashCharges++;
+                _dashRechargeTimer = dashCooldown;
+            }
+        }
 
         // Handle state-specific logic
         GD.Print($"Current State: {_currentState}");
@@ -209,7 +218,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -279,7 +288,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -354,7 +363,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -384,7 +393,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -411,7 +420,7 @@ public partial class PlatformerCharacterController2D : Node2D
             characterBody.Velocity = vel;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -440,7 +449,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && _dashCooldownTimer <= 0f)
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
             return;
@@ -480,6 +489,13 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyFriction(dt, characterBody.IsOnFloor());
 
+        // Dash cancels attack
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            ChangeState(State.Dash);
+            return;
+        }
+
         // Buffer combo input during attack animation
         if (Input.IsActionJustReleased("attack") && !_heavyAttackTriggered)
         {
@@ -493,6 +509,14 @@ public partial class PlatformerCharacterController2D : Node2D
     {
         ApplyGravity(dt);
         ApplyFriction(dt, characterBody.IsOnFloor());
+
+        // Dash cancels heavy attack
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            ChangeState(State.Dash);
+            return;
+        }
+
         // AnimationFinished callback handles return to Idle
     }
 
@@ -597,8 +621,9 @@ public partial class PlatformerCharacterController2D : Node2D
                 break;
 
             case State.Dash:
+                _dashCharges--;
+                _dashRechargeTimer = dashCooldown;
                 _dashTimer = dashDuration;
-                _dashCooldownTimer = dashCooldown;
                 PlayAnimation("dash");
                 break;
         }
