@@ -26,6 +26,7 @@ public partial class PlatformerCharacterController2D : Node2D
     #region Jump Parameters
 
     [ExportGroup("Jump")]
+    [Export] private bool enableDoubleJump = true;
     [Export] private float jumpVelocity = -400f;
     [Export] private float doubleJumpVelocity = -350f;
     [Export] private float gravity = 980f;
@@ -376,7 +377,7 @@ public partial class PlatformerCharacterController2D : Node2D
             characterBody.Velocity = vel;
         }
 
-        if (Input.IsActionJustPressed("jump") && _hasDoubleJump)
+        if (Input.IsActionJustPressed("jump") && _hasDoubleJump && enableDoubleJump)
         {
             ChangeState(State.DoubleJump);
             return;
@@ -406,7 +407,7 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyMovement(dt, false);
 
-        if (Input.IsActionJustPressed("jump") && _hasDoubleJump)
+        if (Input.IsActionJustPressed("jump") && _hasDoubleJump && enableDoubleJump)
         {
             ChangeState(State.DoubleJump);
             return;
@@ -462,7 +463,7 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyMovement(dt, false);
 
-        if (Input.IsActionJustPressed("jump") && _hasDoubleJump)
+        if (Input.IsActionJustPressed("jump") && _hasDoubleJump && enableDoubleJump)
         {
             ChangeState(State.DoubleJump);
             return;
