@@ -246,6 +246,12 @@ public partial class PlatformerCharacterController2D : Node2D
 
         if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
         {
+            // Drop through one-way platform: S + Space
+            if (Input.IsActionPressed("move_down") && TryDropThroughPlatform())
+            {
+                ChangeState(State.Fall);
+                return;
+            }
             ChangeState(State.Jump);
             return;
         }
@@ -322,6 +328,12 @@ public partial class PlatformerCharacterController2D : Node2D
 
         if (Input.IsActionJustPressed("jump"))
         {
+            // Drop through one-way platform: S + Space
+            if (Input.IsActionPressed("move_down") && TryDropThroughPlatform())
+            {
+                ChangeState(State.Fall);
+                return;
+            }
             ChangeState(State.Jump);
             return;
         }
@@ -908,6 +920,53 @@ public partial class PlatformerCharacterController2D : Node2D
             _facingDirection = -1;
 
         animatedSprite.FlipH = _facingDirection < 0;
+    }
+
+    private bool TryDropThroughPlatform()
+    {
+        // Check if standing on a one-way collision platform
+        for (int i = 0; i < characterBody.GetSlideCollisionCount(); i++)
+        {
+            var collision = characterBody.GetSlideCollision(i);
+            var collider = collision.GetCollider();
+            bool isOneWay = false;
+
+            // StaticBody2D: check children for OneWayCollision shapes
+            if (collider is StaticBody2D staticBody)
+            {
+                foreach (var child in staticBody.GetChildren())
+                {
+                    if (child is CollisionShape2D shape && shape.OneWayCollision)
+                    {
+                        isOneWay = true;
+                        break;
+                    }
+                }
+            }
+            // TileMapLayer / TileMap: assume one-way if player intentionally presses down+jump
+            else if (collider is TileMapLayer || collider is TileMap)
+            {
+                isOneWay = true;
+            }
+
+            if (isOneWay)
+            {
+                // Disable floor snap to prevent snapping back onto the platform
+                float prevSnap = characterBody.FloorSnapLength;
+                characterBody.FloorSnapLength = 0;
+                characterBody.Position += new Vector2(0, 4);
+                characterBody.Velocity = new Vector2(characterBody.Velocity.X, 50);
+
+                // Restore floor snap after passing through
+                GetTree().CreateTimer(0.15).Timeout += () =>
+                {
+                    if (IsInstanceValid(characterBody))
+                        characterBody.FloorSnapLength = prevSnap;
+                };
+                return true;
+            }
+        }
+        return false;
     }
 
     #endregion
