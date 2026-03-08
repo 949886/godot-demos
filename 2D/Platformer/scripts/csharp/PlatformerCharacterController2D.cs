@@ -591,6 +591,14 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
+        // Jump cancels attack — leave afterimage
+        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        {
+            SpawnAfterimage();
+            ChangeState(State.Jump);
+            return;
+        }
+
         // Buffer combo input during attack animation
         if (Input.IsActionJustReleased("attack") && !_heavyAttackTriggered)
         {
@@ -610,6 +618,14 @@ public partial class PlatformerCharacterController2D : Node2D
         {
             SpawnAfterimage();
             ChangeState(State.Dash);
+            return;
+        }
+
+        // Jump cancels heavy attack — leave afterimage
+        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        {
+            SpawnAfterimage();
+            ChangeState(State.Jump);
             return;
         }
 
