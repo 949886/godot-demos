@@ -1,11 +1,10 @@
 using Godot;
 using System;
 
-public partial class PlatformerCharacterController2D : Node2D
+public partial class PlatformerCharacterController2D : CharacterBody2D
 {
     #region Exports
 
-    [Export] private CharacterBody2D characterBody;
     [Export] private AnimatedSprite2D animatedSprite;
     [Export] private AnimationPlayer animationPlayer;
     [Export] private AnimationTree animationTree;
@@ -113,8 +112,7 @@ public partial class PlatformerCharacterController2D : Node2D
     public override void _Ready()
     {
         // Auto-find nodes by relative path if not assigned via export
-        characterBody ??= GetNode<CharacterBody2D>("CharacterBody2D");
-        animatedSprite ??= GetNode<AnimatedSprite2D>("CharacterBody2D/AnimatedSprite2D");
+        animatedSprite ??= GetNode<AnimatedSprite2D>("AnimatedSprite2D");
         animationPlayer ??= GetNode<AnimationPlayer>("AnimationPlayer");
         animationTree = GetNodeOrNull<AnimationTree>("AnimationTree");
 
@@ -194,7 +192,7 @@ public partial class PlatformerCharacterController2D : Node2D
                 break;
         }
 
-        characterBody.MoveAndSlide();
+        this.MoveAndSlide();
     }
 
     public override void _Input(InputEvent @event)
@@ -244,7 +242,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        if (Input.IsActionJustPressed("jump") && this.IsOnFloor())
         {
             // Drop through one-way platform: S + Space
             if (Input.IsActionPressed("move_down") && TryDropThroughPlatform())
@@ -257,7 +255,7 @@ public partial class PlatformerCharacterController2D : Node2D
         }
 
         // Fall off edge
-        if (!characterBody.IsOnFloor())
+        if (!this.IsOnFloor())
         {
             ChangeState(State.Fall);
             return;
@@ -276,7 +274,7 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyMovement(dt, true);
 
-        if (!characterBody.IsOnFloor())
+        if (!this.IsOnFloor())
         {
             ChangeState(State.Fall);
             return;
@@ -320,7 +318,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (!characterBody.IsOnFloor())
+        if (!this.IsOnFloor())
         {
             ChangeState(State.Fall);
             return;
@@ -353,7 +351,7 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyFriction(dt, true);
 
-        if (!characterBody.IsOnFloor())
+        if (!this.IsOnFloor())
         {
             ChangeState(State.Fall);
             return;
@@ -382,11 +380,11 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyMovement(dt, false);
 
         // Variable jump height
-        if (Input.IsActionJustReleased("jump") && characterBody.Velocity.Y < 0)
+        if (Input.IsActionJustReleased("jump") && this.Velocity.Y < 0)
         {
-            var vel = characterBody.Velocity;
+            var vel = this.Velocity;
             vel.Y *= jumpCutMultiplier;
-            characterBody.Velocity = vel;
+            this.Velocity = vel;
         }
 
         if (Input.IsActionJustPressed("jump") && _hasDoubleJump && enableDoubleJump)
@@ -402,13 +400,13 @@ public partial class PlatformerCharacterController2D : Node2D
         }
 
         // Transition to fall when starting to descend
-        if (characterBody.Velocity.Y > 0)
+        if (this.Velocity.Y > 0)
         {
             ChangeState(State.JumpToFall);
             return;
         }
 
-        if (characterBody.IsOnFloor())
+        if (this.IsOnFloor())
         {
             ChangeState(State.Landing);
         }
@@ -431,7 +429,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (characterBody.IsOnFloor())
+        if (this.IsOnFloor())
         {
             ChangeState(State.Landing);
             return;
@@ -445,11 +443,11 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyGravity(dt);
         ApplyMovement(dt, false);
 
-        if (Input.IsActionJustReleased("jump") && characterBody.Velocity.Y < 0)
+        if (Input.IsActionJustReleased("jump") && this.Velocity.Y < 0)
         {
-            var vel = characterBody.Velocity;
+            var vel = this.Velocity;
             vel.Y *= jumpCutMultiplier;
-            characterBody.Velocity = vel;
+            this.Velocity = vel;
         }
 
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
@@ -458,13 +456,13 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (characterBody.Velocity.Y > 0)
+        if (this.Velocity.Y > 0)
         {
             ChangeState(State.Fall);
             return;
         }
 
-        if (characterBody.IsOnFloor())
+        if (this.IsOnFloor())
         {
             ChangeState(State.Landing);
         }
@@ -487,17 +485,17 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (characterBody.IsOnFloor())
+        if (this.IsOnFloor())
         {
             ChangeState(State.Landing);
             return;
         }
 
         // Wall slide detection
-        if (enableWallJump && characterBody.IsOnWall() && !characterBody.IsOnFloor())
+        if (enableWallJump && this.IsOnWall() && !this.IsOnFloor())
         {
             float inputDir = GetMoveInput();
-            var wallNormal = characterBody.GetWallNormal();
+            var wallNormal = this.GetWallNormal();
             // Only wall slide if player is pressing toward the wall
             if ((wallNormal.X > 0 && inputDir < -0.1f) || (wallNormal.X < 0 && inputDir > 0.1f))
             {
@@ -510,10 +508,10 @@ public partial class PlatformerCharacterController2D : Node2D
     private void ProcessWallSlide(float dt)
     {
         // Slow gravity while on wall
-        var vel = characterBody.Velocity;
+        var vel = this.Velocity;
         vel.Y = Mathf.Min(vel.Y + wallSlideGravity * dt, wallSlideGravity);
         vel.X = 0;
-        characterBody.Velocity = vel;
+        this.Velocity = vel;
 
         // Face away from wall
         UpdateFacing(-_wallDirection);
@@ -521,10 +519,10 @@ public partial class PlatformerCharacterController2D : Node2D
         // Wall jump
         if (Input.IsActionJustPressed("jump"))
         {
-            var wjVel = characterBody.Velocity;
+            var wjVel = this.Velocity;
             wjVel.X = -_wallDirection * wallJumpHorizontalSpeed;
             wjVel.Y = wallJumpVerticalSpeed;
-            characterBody.Velocity = wjVel;
+            this.Velocity = wjVel;
             _hasDoubleJump = true; // Restore double jump
             UpdateFacing(-_wallDirection);
             ChangeState(State.Jump);
@@ -539,8 +537,8 @@ public partial class PlatformerCharacterController2D : Node2D
 
         // Let go of wall
         float inputDir = GetMoveInput();
-        var wallNormal = characterBody.IsOnWall() ? characterBody.GetWallNormal() : Vector2.Zero;
-        bool stillOnWall = characterBody.IsOnWall() &&
+        var wallNormal = this.IsOnWall() ? this.GetWallNormal() : Vector2.Zero;
+        bool stillOnWall = this.IsOnWall() &&
             ((_wallDirection == -1 && inputDir < -0.1f) || (_wallDirection == 1 && inputDir > 0.1f));
 
         if (!stillOnWall)
@@ -549,7 +547,7 @@ public partial class PlatformerCharacterController2D : Node2D
             return;
         }
 
-        if (characterBody.IsOnFloor())
+        if (this.IsOnFloor())
         {
             ChangeState(State.Landing);
         }
@@ -561,7 +559,7 @@ public partial class PlatformerCharacterController2D : Node2D
         ApplyFriction(dt, true);
 
         // Allow player to cancel landing animation with movement or jump
-        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        if (Input.IsActionJustPressed("jump") && this.IsOnFloor())
         {
             ChangeState(State.Jump);
             return;
@@ -581,7 +579,7 @@ public partial class PlatformerCharacterController2D : Node2D
     private void ProcessAttack(float dt)
     {
         ApplyGravity(dt);
-        ApplyFriction(dt, characterBody.IsOnFloor());
+        ApplyFriction(dt, this.IsOnFloor());
 
         // Dash cancels attack — leave afterimage
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
@@ -592,7 +590,7 @@ public partial class PlatformerCharacterController2D : Node2D
         }
 
         // Jump cancels attack — leave afterimage
-        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        if (Input.IsActionJustPressed("jump") && this.IsOnFloor())
         {
             SpawnAfterimage();
             ChangeState(State.Jump);
@@ -611,7 +609,7 @@ public partial class PlatformerCharacterController2D : Node2D
     private void ProcessHeavyAttack(float dt)
     {
         ApplyGravity(dt);
-        ApplyFriction(dt, characterBody.IsOnFloor());
+        ApplyFriction(dt, this.IsOnFloor());
 
         // Dash cancels heavy attack — leave afterimage
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
@@ -622,7 +620,7 @@ public partial class PlatformerCharacterController2D : Node2D
         }
 
         // Jump cancels heavy attack — leave afterimage
-        if (Input.IsActionJustPressed("jump") && characterBody.IsOnFloor())
+        if (Input.IsActionJustPressed("jump") && this.IsOnFloor())
         {
             SpawnAfterimage();
             ChangeState(State.Jump);
@@ -637,17 +635,17 @@ public partial class PlatformerCharacterController2D : Node2D
         _dashTimer -= dt;
 
         // Override velocity during dash (no gravity)
-        var vel = characterBody.Velocity;
+        var vel = this.Velocity;
         vel.X = _facingDirection * dashSpeed;
         vel.Y = 0;
-        characterBody.Velocity = vel;
+        this.Velocity = vel;
 
         if (_dashTimer <= 0f)
         {
             // Kill dash momentum so the character doesn't slide
-            characterBody.Velocity = Vector2.Zero;
+            this.Velocity = Vector2.Zero;
 
-            if (characterBody.IsOnFloor())
+            if (this.IsOnFloor())
                 ChangeState(State.Idle);
             else
                 ChangeState(State.Fall);
@@ -686,9 +684,9 @@ public partial class PlatformerCharacterController2D : Node2D
                 // Wall jump already sets velocity, only set jump velocity for ground jumps
                 if (previousState != State.WallSlide)
                 {
-                    var jumpVel = characterBody.Velocity;
+                    var jumpVel = this.Velocity;
                     jumpVel.Y = jumpVelocity;
-                    characterBody.Velocity = jumpVel;
+                    this.Velocity = jumpVel;
                 }
                 PlayAnimation("jump");
                 break;
@@ -699,9 +697,9 @@ public partial class PlatformerCharacterController2D : Node2D
 
             case State.DoubleJump:
                 _hasDoubleJump = false;
-                var djVel = characterBody.Velocity;
+                var djVel = this.Velocity;
                 djVel.Y = doubleJumpVelocity;
-                characterBody.Velocity = djVel;
+                this.Velocity = djVel;
                 PlayAnimation("double_jump");
                 break;
 
@@ -828,7 +826,7 @@ public partial class PlatformerCharacterController2D : Node2D
             case "jump":
                 if (_currentState == State.Jump)
                 {
-                    if (characterBody.Velocity.Y >= 0)
+                    if (this.Velocity.Y >= 0)
                         ChangeState(State.JumpToFall);
                 }
                 break;
@@ -836,7 +834,7 @@ public partial class PlatformerCharacterController2D : Node2D
             case "double_jump":
                 if (_currentState == State.DoubleJump)
                 {
-                    if (characterBody.Velocity.Y >= 0)
+                    if (this.Velocity.Y >= 0)
                         ChangeState(State.Fall);
                 }
                 break;
@@ -870,8 +868,8 @@ public partial class PlatformerCharacterController2D : Node2D
             case "dash":
                 if (_currentState == State.Dash)
                 {
-                    characterBody.Velocity = Vector2.Zero;
-                    if (characterBody.IsOnFloor())
+                    this.Velocity = Vector2.Zero;
+                    if (this.IsOnFloor())
                         ChangeState(State.Idle);
                     else
                         ChangeState(State.Fall);
@@ -891,11 +889,11 @@ public partial class PlatformerCharacterController2D : Node2D
 
     private void ApplyGravity(float dt)
     {
-        if (!characterBody.IsOnFloor())
+        if (!this.IsOnFloor())
         {
-            var vel = characterBody.Velocity;
+            var vel = this.Velocity;
             vel.Y = Mathf.Min(vel.Y + gravity * dt, maxFallSpeed);
-            characterBody.Velocity = vel;
+            this.Velocity = vel;
         }
     }
 
@@ -905,7 +903,7 @@ public partial class PlatformerCharacterController2D : Node2D
         float accel = grounded ? acceleration : airAcceleration;
         float fric = grounded ? friction : airFriction;
 
-        var vel = characterBody.Velocity;
+        var vel = this.Velocity;
 
         if (Mathf.Abs(inputDir) > 0.1f)
         {
@@ -917,15 +915,15 @@ public partial class PlatformerCharacterController2D : Node2D
             vel.X = Mathf.MoveToward(vel.X, 0, fric * dt);
         }
 
-        characterBody.Velocity = vel;
+        this.Velocity = vel;
     }
 
     private void ApplyFriction(float dt, bool grounded)
     {
         float fric = grounded ? friction : airFriction;
-        var vel = characterBody.Velocity;
+        var vel = this.Velocity;
         vel.X = Mathf.MoveToward(vel.X, 0, fric * dt);
-        characterBody.Velocity = vel;
+        this.Velocity = vel;
     }
 
     private void UpdateFacing(float direction)
@@ -941,9 +939,9 @@ public partial class PlatformerCharacterController2D : Node2D
     private bool TryDropThroughPlatform()
     {
         // Check if standing on a one-way collision platform
-        for (int i = 0; i < characterBody.GetSlideCollisionCount(); i++)
+        for (int i = 0; i < this.GetSlideCollisionCount(); i++)
         {
-            var collision = characterBody.GetSlideCollision(i);
+            var collision = this.GetSlideCollision(i);
             var collider = collision.GetCollider();
             bool isOneWay = false;
 
@@ -968,16 +966,16 @@ public partial class PlatformerCharacterController2D : Node2D
             if (isOneWay)
             {
                 // Disable floor snap to prevent snapping back onto the platform
-                float prevSnap = characterBody.FloorSnapLength;
-                characterBody.FloorSnapLength = 0;
-                characterBody.Position += new Vector2(0, 4);
-                characterBody.Velocity = new Vector2(characterBody.Velocity.X, 50);
+                float prevSnap = this.FloorSnapLength;
+                this.FloorSnapLength = 0;
+                this.Position += new Vector2(0, 4);
+                this.Velocity = new Vector2(this.Velocity.X, 50);
 
                 // Restore floor snap after passing through
                 GetTree().CreateTimer(0.15).Timeout += () =>
                 {
-                    if (IsInstanceValid(characterBody))
-                        characterBody.FloorSnapLength = prevSnap;
+                    if (IsInstanceValid(this))
+                        this.FloorSnapLength = prevSnap;
                 };
                 return true;
             }
