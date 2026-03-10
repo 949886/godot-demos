@@ -1,8 +1,8 @@
-[gd_scene format=3 uid="uid://c6vo4rjdw6mex"]
+[gd_scene format=3 uid="uid://cp7soa40msiek"]
 
-[ext_resource type="Script" uid="uid://ct8wm06adiigu" path="res://2D/Platformer/scripts/csharp/PlatformerCharacterController2D.cs" id="1_rxgpf"]
-[ext_resource type="SpriteFrames" uid="uid://ctqnpmn1mmwee" path="res://2D/Platformer/characters/Shiro/animations/shiro_sprite_frames.tres" id="1_sq6pq"]
-[ext_resource type="AnimationNodeStateMachine" uid="uid://c2ea07gspat02" path="res://2D/Platformer/characters/Shiro/animations/shiro_animation_controller.tres" id="3_86b3q"]
+[ext_resource type="Script" uid="uid://ct8wm06adiigu" path="res://2D/Platformer/scripts/csharp/PlatformerCharacterController2D.cs" id="1_7p0v6"]
+[ext_resource type="SpriteFrames" uid="uid://ctqnpmn1mmwee" path="res://2D/Platformer/characters/Shiro/animations/shiro_sprite_frames.tres" id="1_i25jw"]
+[ext_resource type="AnimationNodeStateMachine" uid="uid://c2ea07gspat02" path="res://2D/Platformer/characters/Shiro/animations/shiro_animation_controller.tres" id="2_7p0v6"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xjagb"]
 radius = 6.0
@@ -476,24 +476,26 @@ _data = {
 &"run_to_idle": SubResource("Animation_qhm7n")
 }
 
-[node name="Shiro" type="Node2D" unique_id=1029694513]
-script = ExtResource("1_rxgpf")
+[node name="CharacterBody2D" type="CharacterBody2D" unique_id=2018056203]
+collision_mask = 3
+script = ExtResource("1_7p0v6")
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=547118280]
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D" unique_id=963032232]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=290157219]
 texture_filter = 1
 position = Vector2(0, -31)
-sprite_frames = ExtResource("1_sq6pq")
-animation = &"run"
+sprite_frames = ExtResource("1_i25jw")
+animation = &"idle"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=141883607]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1884903422]
 position = Vector2(6, -20)
 shape = SubResource("CapsuleShape2D_xjagb")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=967897779]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2091975394]
+root_node = NodePath("../..")
 libraries/ = SubResource("AnimationLibrary_ekk66")
 
-[node name="AnimationTree" type="AnimationTree" parent="." unique_id=1247995380]
-tree_root = ExtResource("3_86b3q")
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=940678155]
+active = false
+root_node = NodePath("../..")
+tree_root = ExtResource("2_7p0v6")
 anim_player = NodePath("../AnimationPlayer")
