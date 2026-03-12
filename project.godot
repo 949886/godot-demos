@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="demos"
-run/main_scene="res://UI/Joystick/Demo/JoystickDemo.tscn"
+run/main_scene="res://UI/Joystick/Demo/PlatformerJoystickDemo.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -66,6 +66,7 @@ move_down={
 [input_devices]
 
 pointing/emulate_touch_from_mouse=true
+pointing/emulate_mouse_from_touch=false
 
 [rendering]
 
