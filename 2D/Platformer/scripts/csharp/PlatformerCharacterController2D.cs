@@ -60,6 +60,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
 
     [ExportGroup("Attack")]
     [Export] private float heavyAttackHoldTime = 0.3f;
+    [Export] private float jumpAttackLift = 150f;
 
     #endregion
 
@@ -90,6 +91,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     private State _currentState = State.Idle;
     private int _facingDirection = 1; // 1 = right, -1 = left
     private bool _hasDoubleJump = true;
+    private bool _hasJumpAttack = true;
 
     // Dash tracking
     private float _dashTimer = 0f;
@@ -403,7 +405,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
-        if (Input.IsActionJustPressed("attack"))
+        if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
             return;
@@ -439,7 +441,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
-        if (Input.IsActionJustPressed("attack"))
+        if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
             return;
@@ -474,7 +476,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
-        if (Input.IsActionJustPressed("attack"))
+        if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
             return;
@@ -509,7 +511,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
-        if (Input.IsActionJustPressed("attack"))
+        if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
             return;
@@ -707,6 +709,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             case State.Idle:
                 PlayAnimation("idle");
                 _hasDoubleJump = true;
+                _hasJumpAttack = true;
                 break;
 
             case State.IdleToRun:
@@ -750,6 +753,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
 
             case State.Landing:
                 _hasDoubleJump = true;
+                _hasJumpAttack = true;
                 PlayAnimation("landing");
                 break;
 
@@ -784,10 +788,15 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 break;
 
             case State.JumpAttack:
+                _hasJumpAttack = false;
+                var jaVel = this.Velocity;
+                jaVel.Y = -jumpAttackLift;
+                this.Velocity = jaVel;
                 PlayAnimation("jump_attack");
                 break;
 
             case State.WallSlide:
+                _hasJumpAttack = true;
                 PlayAnimation("fall"); // Reuse fall animation for wall slide
                 break;
         }
