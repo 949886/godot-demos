@@ -83,6 +83,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         HeavyAttack,
         Dash,
         WallSlide,
+        JumpAttack,
         Die
     }
 
@@ -178,6 +179,9 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             //     break;
             case State.WallSlide:
                 ProcessWallSlide(dt);
+                break;
+            case State.JumpAttack:
+                ProcessJumpAttack(dt);
                 break;
             case State.Attack1:
             case State.Attack2:
@@ -399,6 +403,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
+        if (Input.IsActionJustPressed("attack"))
+        {
+            ChangeState(State.JumpAttack);
+            return;
+        }
+
         // Transition to fall when starting to descend
         if (this.Velocity.Y > 0)
         {
@@ -426,6 +436,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("attack"))
+        {
+            ChangeState(State.JumpAttack);
             return;
         }
 
@@ -458,6 +474,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
+        if (Input.IsActionJustPressed("attack"))
+        {
+            ChangeState(State.JumpAttack);
+            return;
+        }
+
         if (this.Velocity.Y > 0)
         {
             ChangeState(State.Fall);
@@ -484,6 +506,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("attack"))
+        {
+            ChangeState(State.JumpAttack);
             return;
         }
 
@@ -622,6 +650,27 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         // AnimationFinished callback handles return to Idle
     }
 
+    private void ProcessJumpAttack(float dt)
+    {
+        ApplyGravity(dt);
+        ApplyMovement(dt, false);
+
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            SpawnAfterimage();
+            ChangeState(State.Dash);
+            return;
+        }
+
+        if (this.IsOnFloor())
+        {
+            ChangeState(State.Landing);
+            return;
+        }
+        
+        // AnimationFinished callback handles transition back to Fall
+    }
+
     private void ProcessDash(float dt)
     {
         _dashTimer -= dt;
@@ -732,6 +781,10 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 _dashRechargeTimer = dashCooldown;
                 _dashTimer = dashDuration;
                 PlayAnimation("dash");
+                break;
+
+            case State.JumpAttack:
+                PlayAnimation("jump_attack");
                 break;
 
             case State.WallSlide:
@@ -855,6 +908,13 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             case "attack3":
             case "heavy_attack":
                 ChangeState(State.Idle);
+                break;
+
+            case "jump_attack":
+                if (_currentState == State.JumpAttack)
+                {
+                    ChangeState(State.Fall);
+                }
                 break;
 
             case "dash":

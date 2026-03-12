@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://4aqekrs82a1g" path="res://2D/Platformer/characters/Shiro/sprites/Anim_Player_RunToIdle.png" id="7_fm3gp"]
 [ext_resource type="Texture2D" uid="uid://dog10y0xslpqa" path="res://2D/Platformer/characters/Shiro/sprites/Anim_Player_FallStart.png" id="9_mtlxu"]
 [ext_resource type="Texture2D" uid="uid://bomwn4etag8u7" path="res://2D/Platformer/characters/Shiro/sprites/Anim_Player_Landing.png" id="10_yh7qv"]
+[ext_resource type="Texture2D" uid="uid://dqsjypyiaqqjx" path="res://2D/Platformer/characters/Shiro/sprites/Anim_Player_JumpAttack.png" id="14_arufn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_w33gq"]
 atlas = ExtResource("1_fm3gp")
@@ -1583,6 +1584,38 @@ region = Rect2(448, 256, 64, 128)
 [sub_resource type="AtlasTexture" id="AtlasTexture_fdqhh"]
 atlas = ExtResource("6_27m0t")
 region = Rect2(0, 384, 64, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dofvw"]
+atlas = ExtResource("14_arufn")
+region = Rect2(0, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lsbdt"]
+atlas = ExtResource("14_arufn")
+region = Rect2(192, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p4058"]
+atlas = ExtResource("14_arufn")
+region = Rect2(384, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sfhmv"]
+atlas = ExtResource("14_arufn")
+region = Rect2(576, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kbkph"]
+atlas = ExtResource("14_arufn")
+region = Rect2(768, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_255js"]
+atlas = ExtResource("14_arufn")
+region = Rect2(960, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h0d2i"]
+atlas = ExtResource("14_arufn")
+region = Rect2(1152, 0, 192, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x2s0g"]
+atlas = ExtResource("14_arufn")
+region = Rect2(1344, 0, 192, 128)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_005ui"]
 atlas = ExtResource("9_mtlxu")
@@ -3271,6 +3304,35 @@ animations = [{
 }],
 "loop": true,
 "name": &"jump",
+"speed": 60.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dofvw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lsbdt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p4058")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sfhmv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kbkph")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_255js")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h0d2i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x2s0g")
+}],
+"loop": true,
+"name": &"jump_attack",
 "speed": 60.0
 }, {
 "frames": [{
