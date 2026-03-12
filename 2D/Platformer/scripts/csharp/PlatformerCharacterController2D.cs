@@ -62,7 +62,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private float heavyAttackHoldTime = 0.3f;
     [Export] private float jumpAttackLift = 150f;
     [Export] private PackedScene shurikenScene;
-    [Export] private Vector2 shurikenSpawnOffset = new Vector2(10f, 0f);
+    [Export] private Vector2 shurikenSpawnOffset = new Vector2(10f, -15f);
 
     #endregion
 
@@ -767,14 +767,21 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
 
     private void InstantiateShuriken()
     {
-        if (shurikenScene == null) return;
+        if (shurikenScene == null)
+        {
+            GD.PrintErr("Shuriken Scene is null! You need to drag 'Shuriken.tscn' into the 'Shuriken Scene' property in the Inspector on your character!");
+            return;
+        }
         
         var shuriken = shurikenScene.Instantiate<Shuriken>();
         GetTree().CurrentScene.AddChild(shuriken);
         
         var flipOffset = new Vector2(shurikenSpawnOffset.X * _facingDirection, shurikenSpawnOffset.Y);
         shuriken.GlobalPosition = this.GlobalPosition + flipOffset;
-        shuriken.Direction = new Vector2(_facingDirection, 0);
+        
+        Vector2 mousePos = GetGlobalMousePosition();
+        shuriken.Direction = (mousePos - shuriken.GlobalPosition).Normalized();
+        shuriken.Rotation = shuriken.Direction.Angle();
     }
 
     private void ProcessDash(float dt)
@@ -900,10 +907,14 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 break;
 
             case State.Throw:
+                var mousePosThrow = GetGlobalMousePosition();
+                UpdateFacing(mousePosThrow.X - this.GlobalPosition.X);
                 PlayAnimation("shuriken");
                 InstantiateShuriken();
                 break;
             case State.AirThrow:
+                var mousePosAirThrow = GetGlobalMousePosition();
+                UpdateFacing(mousePosAirThrow.X - this.GlobalPosition.X);
                 PlayAnimation("shuriken_air");
                 InstantiateShuriken();
                 break;

@@ -2,6 +2,7 @@
 
 [ext_resource type="TileSet" uid="uid://0nen7hmysiut" path="res://2D/Platformer/tiles/playground.tres" id="1_ft65l"]
 [ext_resource type="PackedScene" uid="uid://cp7soa40msiek" path="res://2D/Platformer/characters/Shiro/Shiro.tscn" id="3_2jew8"]
+[ext_resource type="PackedScene" uid="uid://c7t8p6v5taq2x" path="res://2D/Platformer/characters/Shiro/Shuriken.tscn" id="4_e43l5"]
 [ext_resource type="Shader" uid="uid://dejeiy537grca" path="res://2D/Platformer/shaders/chromatic/circular_chormatic/circular_chormatic.gdshader" id="6_jmku4"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_87gpe"]
@@ -77,6 +78,7 @@ offset_bottom = 576.0
 
 [node name="CharacterBody2D" parent="." unique_id=2018056203 instance=ExtResource("3_2jew8")]
 position = Vector2(434, 340)
+shurikenScene = ExtResource("4_e43l5")
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=54034375]
 zoom = Vector2(1.6, 1.6)

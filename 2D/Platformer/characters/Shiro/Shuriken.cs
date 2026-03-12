@@ -3,10 +3,10 @@ using System;
 
 public partial class Shuriken : Area2D
 {
-    [Export] public float Speed { get; set; } = 800f;
+    [Export] public float Speed { get; set; } = 1000f;
     [Export] public float Lifespan { get; set; } = 5.0f;
-    [Export] public float AfterimageInterval { get; set; } = 0.05f;
-    [Export] public float AfterimageDuration { get; set; } = 0.2f;
+    [Export] public float AfterimageInterval { get; set; } = 0.033334f;
+    [Export] public float AfterimageDuration { get; set; } = 0.25f;
     [Export] public Color AfterimageColor { get; set; } = new Color(0.1f, 0.5f, 1f, 0.6f);
 
     public Vector2 Direction { get; set; } = Vector2.Right;
@@ -20,28 +20,39 @@ public partial class Shuriken : Area2D
         _sprite = GetNode<Sprite2D>("Sprite2D");
 
         // Face the correct direction based on throw direction
-        if (Direction.X < 0)
-        {
-            _sprite.FlipH = true;
-        }
-        else
-        {
-            _sprite.FlipH = false;
-        }
-
-        // Connect collision signal
-        BodyEntered += OnBodyEntered;
+        Rotation = Direction.Angle();
     }
 
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
         if (_stuck)
             return;
 
         float dt = (float)delta;
+        Vector2 movement = Direction * Speed * dt;
         
-        // Move
-        Position += Direction * Speed * dt;
+        // Raycast ahead to see if we hit a wall this frame
+        var spaceState = GetWorld2D().DirectSpaceState;
+        var query = PhysicsRayQueryParameters2D.Create(GlobalPosition, GlobalPosition + movement, CollisionMask);
+        query.CollideWithAreas = false;
+        query.CollideWithBodies = true;
+        
+        var result = spaceState.IntersectRay(query);
+        
+        if (result.Count > 0)
+        {
+            var collider = (Node2D)result["collider"];
+            if (collider is StaticBody2D || collider is TileMapLayer || collider is TileMap)
+            {
+                // Move exactly to the hit point and stick
+                GlobalPosition = (Vector2)result["position"];
+                StickToSurface();
+                return;
+            }
+        }
+        
+        // Move normally
+        Position += movement;
 
         // Spawn afterimages
         _afterimageTimer -= dt;
@@ -49,17 +60,6 @@ public partial class Shuriken : Area2D
         {
             SpawnAfterimage();
             _afterimageTimer = AfterimageInterval;
-        }
-    }
-
-    private void OnBodyEntered(Node2D body)
-    {
-        if (_stuck) return;
-
-        // Check if hitting environment (StaticBody2D or TileMapLayer)
-        if (body is StaticBody2D || body is TileMapLayer || body is TileMap)
-        {
-            StickToSurface();
         }
     }
 
@@ -86,8 +86,8 @@ public partial class Shuriken : Area2D
         var ghost = new Sprite2D
         {
             Texture = _sprite.Texture,
-            FlipH = _sprite.FlipH,
             GlobalPosition = _sprite.GlobalPosition,
+            Rotation = this.Rotation,
             Modulate = AfterimageColor,
             TextureFilter = CanvasItem.TextureFilterEnum.Nearest
         };
