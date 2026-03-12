@@ -435,6 +435,8 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
+        DetectWallSlide();
+
         // AnimationFinished callback handles transition to Fall
     }
 
@@ -492,17 +494,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         }
 
         // Wall slide detection
-        if (enableWallJump && this.IsOnWall() && !this.IsOnFloor())
-        {
-            float inputDir = GetMoveInput();
-            var wallNormal = this.GetWallNormal();
-            // Only wall slide if player is pressing toward the wall
-            if ((wallNormal.X > 0 && inputDir < -0.1f) || (wallNormal.X < 0 && inputDir > 0.1f))
-            {
-                _wallDirection = wallNormal.X > 0 ? -1 : 1;
-                ChangeState(State.WallSlide);
-            }
-        }
+        DetectWallSlide();
     }
 
     private void ProcessWallSlide(float dt)
@@ -798,7 +790,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     {
         string name = animName.ToString();
 
-        switch (name)
+         switch (name)
         {
             // Transition animations → advance to next state
             case "idle_to_run":
@@ -934,6 +926,22 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             _facingDirection = -1;
 
         animatedSprite.FlipH = _facingDirection < 0;
+    }
+    
+    private void DetectWallSlide()
+    {
+        if (enableWallJump && this.IsOnWall() && !this.IsOnFloor())
+        {
+            float inputDir = GetMoveInput();
+            var wallNormal = this.GetWallNormal();
+            
+            // Only wall slide if player is pressing toward the wall
+            if ((wallNormal.X > 0 && inputDir < -0.1f) || (wallNormal.X < 0 && inputDir > 0.1f))
+            {
+                _wallDirection = wallNormal.X > 0 ? -1 : 1;
+                ChangeState(State.WallSlide);
+            }
+        }
     }
 
     private bool TryDropThroughPlatform()
