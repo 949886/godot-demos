@@ -483,6 +483,62 @@ tracks/1/keys = {
 "values": ["run_to_idle"]
 }
 
+[sub_resource type="Animation" id="Animation_cxvjl"]
+length = 0.35
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CharacterBody2D/AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.016666668, 0.033333335, 0.05, 0.06666667, 0.083333336, 0.1, 0.11666667, 0.13333334, 0.15, 0.16666667, 0.18333334, 0.2, 0.21666667, 0.23333333, 0.25, 0.26666668, 0.28333333, 0.3, 0.31666666, 0.33333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CharacterBody2D/AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["shuriken"]
+}
+
+[sub_resource type="Animation" id="Animation_mye0c"]
+length = 0.35
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("CharacterBody2D/AnimatedSprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.016666668, 0.033333335, 0.05, 0.06666667, 0.083333336, 0.1, 0.11666667, 0.13333334, 0.15, 0.16666667, 0.18333334, 0.2, 0.21666667, 0.23333333, 0.25, 0.26666668, 0.28333333, 0.3, 0.31666666, 0.33333334),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("CharacterBody2D/AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["shuriken_air"]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ekk66"]
 _data = {
 &"attack1": SubResource("Animation_mxcqy"),
@@ -501,7 +557,9 @@ _data = {
 &"jump_to_fall": SubResource("Animation_gymf8"),
 &"landing": SubResource("Animation_rnwfi"),
 &"run": SubResource("Animation_sq6pq"),
-&"run_to_idle": SubResource("Animation_qhm7n")
+&"run_to_idle": SubResource("Animation_qhm7n"),
+&"shuriken": SubResource("Animation_cxvjl"),
+&"shuriken_air": SubResource("Animation_mye0c")
 }
 
 [node name="CharacterBody2D" type="CharacterBody2D" unique_id=2018056203]
@@ -512,8 +570,7 @@ script = ExtResource("1_7p0v6")
 texture_filter = 1
 position = Vector2(0, -31)
 sprite_frames = ExtResource("1_i25jw")
-animation = &"jump_to_fall"
-frame_progress = 0.33593994
+animation = &"attack2"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1884903422]
 position = Vector2(6, -20)
