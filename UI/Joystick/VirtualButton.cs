@@ -63,6 +63,12 @@ namespace VirtualJoystickPlugin
 
         public bool IsPressed => _isPressed;
 
+        /// <summary>
+        /// The effective button radius derived from the control's current Size.
+        /// Drawing and hit-testing use this value so the button always fits its Control rect.
+        /// </summary>
+        public float EffectiveRadius => Mathf.Min(Size.X, Size.Y) / 2f;
+
         #endregion
 
         #region Lifecycle
@@ -87,7 +93,8 @@ namespace VirtualJoystickPlugin
         public override void _Draw()
         {
             var center = Size / 2f;
-            var currentRadius = _isPressed ? _buttonRadius * PressedScale : _buttonRadius;
+            var effectiveRadius = EffectiveRadius;
+            var currentRadius = _isPressed ? effectiveRadius * PressedScale : effectiveRadius;
             var currentColor = _isPressed ? PressedColor : NormalColor;
 
             if (_isPressed && PressedTexture != null)
@@ -138,7 +145,7 @@ namespace VirtualJoystickPlugin
 
                 var localPos = touch.Position - GlobalPosition;
                 var center = Size / 2f;
-                if (localPos.DistanceTo(center) <= _buttonRadius)
+                if (localPos.DistanceTo(center) <= EffectiveRadius)
                 {
                     _Press(touch.Index);
                 }
@@ -159,7 +166,7 @@ namespace VirtualJoystickPlugin
             // Release if finger leaves button area (with some tolerance)
             var localPos = drag.Position - GlobalPosition;
             var center = Size / 2f;
-            if (localPos.DistanceTo(center) > _buttonRadius * 1.5f)
+            if (localPos.DistanceTo(center) > EffectiveRadius * 1.5f)
             {
                 _Release();
             }
@@ -210,9 +217,16 @@ namespace VirtualJoystickPlugin
             var font = ThemeDB.FallbackFont;
             if (font == null) return;
 
-            var textSize = font.GetStringSize(Label, HorizontalAlignment.Center, -1, LabelFontSize);
+            // Scale font size proportionally: use the ratio of effective radius to default ButtonRadius
+            var scaledFontSize = _buttonRadius > 0f
+                ? (int)(LabelFontSize * (EffectiveRadius / _buttonRadius))
+                : LabelFontSize;
+            scaledFontSize = Mathf.Max(scaledFontSize, 8); // Floor to avoid tiny text
+
+            var textSize = font.GetStringSize(Label, HorizontalAlignment.Center, -1, scaledFontSize);
             var textPos = center - new Vector2(textSize.X / 2f, -textSize.Y / 4f);
-            DrawString(font, textPos, Label, HorizontalAlignment.Center, -1, LabelFontSize, IconColor);        }
+            DrawString(font, textPos, Label, HorizontalAlignment.Center, -1, scaledFontSize, IconColor);
+        }
 
         private void _UpdateMinimumSize()
         {
@@ -231,6 +245,10 @@ namespace VirtualJoystickPlugin
                 {
                     Input.ActionRelease(Action);
                 }
+            }
+            else if (what == NotificationResized)
+            {
+                QueueRedraw();
             }
         }
 

@@ -210,6 +210,21 @@ namespace VirtualJoystickPlugin
         /// <summary>Current output angle in radians.</summary>
         public float Angle => _output.Angle();
 
+        /// <summary>
+        /// The effective base radius derived from the control's current Size.
+        /// Drawing and hit-testing use this value so the joystick always fits its Control rect.
+        /// </summary>
+        public float EffectiveBaseRadius => Mathf.Min(Size.X, Size.Y) / 2f;
+
+        /// <summary>
+        /// The effective handle radius, scaled proportionally to the control's current Size.
+        /// If BaseRadius is 0 or HandleRadius is 0, falls back to a sensible default.
+        /// </summary>
+        public float EffectiveHandleRadius =>
+            _baseRadius > 0f
+                ? EffectiveBaseRadius * (_handleRadius / _baseRadius)
+                : EffectiveBaseRadius * 0.47f;
+
         #endregion
 
         #region Lifecycle
@@ -261,7 +276,7 @@ namespace VirtualJoystickPlugin
                 {
                     // Check if touch is within the base circle
                     var localPos = _ScreenToLocal(touch.Position);
-                    if (localPos.DistanceTo(_baseCenter) <= _baseRadius)
+                    if (localPos.DistanceTo(_baseCenter) <= EffectiveBaseRadius)
                     {
                         _StartTouch(touch.Index, localPos);
                     }
@@ -331,7 +346,8 @@ namespace VirtualJoystickPlugin
         {
             var diff = localPos - _baseCenter;
             var dist = diff.Length();
-            var maxDist = _baseRadius * _clampZone;
+            var effectiveRadius = EffectiveBaseRadius;
+            var maxDist = effectiveRadius * _clampZone;
 
             // Following mode: move base to follow the thumb
             if (_mode == JoystickMode.Following && dist > maxDist && maxDist > 0)
@@ -425,54 +441,57 @@ namespace VirtualJoystickPlugin
 
         private void _DrawBase()
         {
+            var radius = EffectiveBaseRadius;
+
             if (BaseTexture != null)
             {
                 var texSize = BaseTexture.GetSize();
-                var scale = (_baseRadius * 2f) / Mathf.Max(texSize.X, texSize.Y);
+                var scale = (radius * 2f) / Mathf.Max(texSize.X, texSize.Y);
                 var drawPos = _baseCenter - texSize * scale / 2f;
                 DrawTextureRect(BaseTexture, new Rect2(drawPos, texSize * scale), false, BaseColor);
             }
             else
             {
                 // Draw default filled circle with antialiasing
-                DrawCircle(_baseCenter, _baseRadius, BaseColor, true, -1f, true);
+                DrawCircle(_baseCenter, radius, BaseColor, true, -1f, true);
 
                 // Draw dead zone indicator (subtle ring)
                 if (_deadZone > 0)
                 {
                     var dzColor = new Color(BaseColor.R, BaseColor.G, BaseColor.B, BaseColor.A * 0.3f);
-                    DrawArc(_baseCenter, _baseRadius * _deadZone, 0f, Mathf.Tau, 128, dzColor, 1.5f, true);
+                    DrawArc(_baseCenter, radius * _deadZone, 0f, Mathf.Tau, 128, dzColor, 1.5f, true);
                 }
 
                 // Draw outer ring
                 var ringColor = new Color(BaseColor.R + 0.1f, BaseColor.G + 0.1f, BaseColor.B + 0.1f, BaseColor.A * 0.8f);
-                DrawArc(_baseCenter, _baseRadius, 0f, Mathf.Tau, 128, ringColor, 2f, true);
+                DrawArc(_baseCenter, radius, 0f, Mathf.Tau, 128, ringColor, 2f, true);
             }
         }
 
         private void _DrawHandle()
         {
             var color = _isPressed ? HandlePressedColor : HandleColor;
+            var radius = EffectiveHandleRadius;
 
             if (HandleTexture != null)
             {
                 var texSize = HandleTexture.GetSize();
-                var scale = (_handleRadius * 2f) / Mathf.Max(texSize.X, texSize.Y);
+                var scale = (radius * 2f) / Mathf.Max(texSize.X, texSize.Y);
                 var drawPos = _handlePosition - texSize * scale / 2f;
                 DrawTextureRect(HandleTexture, new Rect2(drawPos, texSize * scale), false, color);
             }
             else
             {
                 // Draw default handle with antialiasing
-                DrawCircle(_handlePosition, _handleRadius, color, true, -1f, true);
+                DrawCircle(_handlePosition, radius, color, true, -1f, true);
 
                 // Draw handle border
-                var borderColor = new Color(color.R * 0.8f, color.G * 0.8f, color.B * 0.8f, color.A);
-                DrawArc(_handlePosition, _handleRadius, 0f, Mathf.Tau, 128, borderColor, 2f, true);
+                var borderColor = new Color(color.R * 0.8f, color.G * 0.8f, color.B * color.A);
+                DrawArc(_handlePosition, radius, 0f, Mathf.Tau, 128, borderColor, 2f, true);
 
                 // Draw inner highlight
                 var highlightColor = new Color(1f, 1f, 1f, color.A * 0.3f);
-                DrawCircle(_handlePosition, _handleRadius * 0.4f, highlightColor, true, -1f, true);            }
+                DrawCircle(_handlePosition, radius * 0.4f, highlightColor, true, -1f, true);            }
         }
 
         #endregion
@@ -524,6 +543,16 @@ namespace VirtualJoystickPlugin
                 {
                     _ReleaseAllActions();
                 }
+            }
+            else if (what == NotificationResized)
+            {
+                // Keep base center and handle position in sync when the control is resized
+                _baseCenter = Size / 2f;
+                if (!_isPressed)
+                {
+                    _handlePosition = _baseCenter;
+                }
+                QueueRedraw();
             }
         }
 
