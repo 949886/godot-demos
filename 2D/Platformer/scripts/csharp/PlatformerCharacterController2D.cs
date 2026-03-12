@@ -61,6 +61,8 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [ExportGroup("Attack")]
     [Export] private float heavyAttackHoldTime = 0.3f;
     [Export] private float jumpAttackLift = 150f;
+    [Export] private PackedScene shurikenScene;
+    [Export] private Vector2 shurikenSpawnOffset = new Vector2(10f, 0f);
 
     #endregion
 
@@ -85,6 +87,8 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         Dash,
         WallSlide,
         JumpAttack,
+        Throw,
+        AirThrow,
         Die
     }
 
@@ -185,6 +189,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             case State.JumpAttack:
                 ProcessJumpAttack(dt);
                 break;
+            case State.Throw:
+                ProcessThrow(dt);
+                break;
+            case State.AirThrow:
+                ProcessAirThrow(dt);
+                break;
             case State.Attack1:
             case State.Attack2:
             case State.Attack3:
@@ -245,6 +255,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.Throw);
             return;
         }
 
@@ -321,6 +337,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.Throw);
             return;
         }
 
@@ -405,6 +427,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.AirThrow);
+            return;
+        }
+
         if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
@@ -438,6 +466,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.AirThrow);
             return;
         }
 
@@ -476,6 +510,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             return;
         }
 
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.AirThrow);
+            return;
+        }
+
         if (Input.IsActionJustPressed("attack") && _hasJumpAttack)
         {
             ChangeState(State.JumpAttack);
@@ -508,6 +548,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.AirThrow);
             return;
         }
 
@@ -554,6 +600,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
         {
             ChangeState(State.Dash);
+            return;
+        }
+
+        if (Input.IsActionJustPressed("throw"))
+        {
+            ChangeState(State.AirThrow);
             return;
         }
 
@@ -671,6 +723,58 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         }
         
         // AnimationFinished callback handles transition back to Fall
+    }
+
+    private void ProcessThrow(float dt)
+    {
+        ApplyGravity(dt);
+        ApplyFriction(dt, this.IsOnFloor());
+
+        // Dash cancels throw
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            SpawnAfterimage();
+            ChangeState(State.Dash);
+            return;
+        }
+
+        if (!this.IsOnFloor())
+        {
+            ChangeState(State.AirThrow);
+            return;
+        }
+    }
+
+    private void ProcessAirThrow(float dt)
+    {
+        ApplyGravity(dt);
+        ApplyMovement(dt, false);
+
+        // Dash cancels air throw
+        if (Input.IsActionJustPressed("dash") && _dashCharges > 0)
+        {
+            SpawnAfterimage();
+            ChangeState(State.Dash);
+            return;
+        }
+
+        if (this.IsOnFloor())
+        {
+            ChangeState(State.Landing);
+            return;
+        }
+    }
+
+    private void InstantiateShuriken()
+    {
+        if (shurikenScene == null) return;
+        
+        var shuriken = shurikenScene.Instantiate<Shuriken>();
+        GetTree().CurrentScene.AddChild(shuriken);
+        
+        var flipOffset = new Vector2(shurikenSpawnOffset.X * _facingDirection, shurikenSpawnOffset.Y);
+        shuriken.GlobalPosition = this.GlobalPosition + flipOffset;
+        shuriken.Direction = new Vector2(_facingDirection, 0);
     }
 
     private void ProcessDash(float dt)
@@ -795,6 +899,15 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 PlayAnimation("jump_attack");
                 break;
 
+            case State.Throw:
+                PlayAnimation("shuriken");
+                InstantiateShuriken();
+                break;
+            case State.AirThrow:
+                PlayAnimation("shuriken_air");
+                InstantiateShuriken();
+                break;
+
             case State.WallSlide:
                 _hasJumpAttack = true;
                 PlayAnimation("fall"); // Reuse fall animation for wall slide
@@ -917,6 +1030,20 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             case "attack3":
             case "heavy_attack":
                 ChangeState(State.Idle);
+                break;
+
+            case "shuriken":
+                if (_currentState == State.Throw)
+                {
+                    ChangeState(State.Idle);
+                }
+                break;
+                
+            case "shuriken_air":
+                if (_currentState == State.AirThrow)
+                {
+                    ChangeState(State.Fall);
+                }
                 break;
 
             case "jump_attack":
