@@ -958,9 +958,31 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 }
             }
             // TileMapLayer / TileMap: assume one-way if player intentionally presses down+jump
-            else if (collider is TileMapLayer || collider is TileMap)
+            else if (collider is TileMap tileMap)
             {
-                isOneWay = true;
+                var mapPos = tileMap.LocalToMap(collision.GetPosition());
+                var tileData = tileMap.GetCellTileData(0, mapPos);
+                
+                if (tileData != null)
+                {
+                    int polygonCount = tileData.GetCollisionPolygonsCount(0);
+                    for (int j = 0; j < polygonCount; j++) 
+                        isOneWay = tileData.IsCollisionPolygonOneWay(0, j);
+                }
+                
+                // isOneWay = true;
+            }
+            else if (collider is TileMapLayer tileMapLayer)
+            {
+                var mapPos = tileMapLayer.LocalToMap(collision.GetPosition());
+                var tileData = tileMapLayer.GetCellTileData(mapPos);
+                
+                if (tileData != null)
+                {
+                    int polygonCount = tileData.GetCollisionPolygonsCount(0);
+                    for (int j = 0; j < polygonCount; j++) 
+                        isOneWay = tileData.IsCollisionPolygonOneWay(0, j);
+                }
             }
 
             if (isOneWay)

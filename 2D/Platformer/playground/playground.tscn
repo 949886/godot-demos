@@ -76,7 +76,7 @@ offset_right = 1024.0
 offset_bottom = 576.0
 
 [node name="CharacterBody2D" parent="." unique_id=2018056203 instance=ExtResource("3_2jew8")]
-position = Vector2(446, 339)
+position = Vector2(434, 340)
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=54034375]
 zoom = Vector2(1.6, 1.6)
