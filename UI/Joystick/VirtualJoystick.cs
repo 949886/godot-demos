@@ -23,7 +23,13 @@ namespace VirtualJoystickPlugin
             /// <summary>Joystick appears where the player touches.</summary>
             Dynamic,
             /// <summary>Joystick base follows the thumb when it exceeds the clamp zone.</summary>
-            Following
+            Following,
+            /// <summary>
+            /// Combines Dynamic and Following: the joystick appears at the touch position
+            /// (like Dynamic) and then the base follows the thumb when it exceeds the
+            /// clamp zone (like Following).
+            /// </summary>
+            DynamicFollowing
         }
 
         public enum VisibilityMode
@@ -47,6 +53,8 @@ namespace VirtualJoystickPlugin
         /// Fixed: Stays in place.
         /// Dynamic: Appears where the user touches within the control area.
         /// Following: Moves its base to follow the user's finger.
+        /// DynamicFollowing: Appears at the touch point (like Dynamic) and then
+        /// follows the finger when it exceeds the clamp zone (like Following).
         /// </summary>
         [Export]
         public JoystickMode Mode
@@ -281,7 +289,7 @@ namespace VirtualJoystickPlugin
                         _StartTouch(touch.Index, localPos);
                     }
                 }
-                else // Dynamic or Following
+                else // Dynamic, Following, or DynamicFollowing
                 {
                     // Check if touch is within the expanded touch area
                     var expandedRect = GetGlobalRect().Grow(_touchAreaMargin);
@@ -349,8 +357,8 @@ namespace VirtualJoystickPlugin
             var effectiveRadius = EffectiveBaseRadius;
             var maxDist = effectiveRadius * _clampZone;
 
-            // Following mode: move base to follow the thumb
-            if (_mode == JoystickMode.Following && dist > maxDist && maxDist > 0)
+            // Following and DynamicFollowing modes: move base to follow the thumb
+            if ((_mode == JoystickMode.Following || _mode == JoystickMode.DynamicFollowing) && dist > maxDist && maxDist > 0)
             {
                 var overflow = diff.Normalized() * (dist - maxDist);
                 _baseCenter += overflow;
