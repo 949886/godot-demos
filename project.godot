@@ -19,6 +19,10 @@ run/main_scene="res://UI/Joystick/Demo/PlatformerJoystickDemo.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/handheld/orientation=4
+
 [dotnet]
 
 project/assembly_name="demos"
