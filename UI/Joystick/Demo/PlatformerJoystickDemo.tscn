@@ -106,6 +106,20 @@ Label = "X"
 LabelFontSize = 18
 metadata/_edit_use_anchors_ = true
 
+[node name="ThrowBtn" type="Control" parent="TouchUI/TouchControls/ButtonArea" unique_id=-1905818964]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchor_left = 0.7033333
+anchor_right = 1.1033334
+anchor_bottom = 0.42
+script = ExtResource("4_r6lw6")
+Action = "throw"
+NormalColor = Color(0.5, 0.3, 0.1, 0.65)
+PressedColor = Color(0.8, 0.5, 0.2, 0.9)
+Label = "Y"
+LabelFontSize = 18
+metadata/_edit_use_anchors_ = true
+
 [node name="InfoPanel" type="PanelContainer" parent="TouchUI" unique_id=1595490430]
 offset_left = 10.0
 offset_top = 10.0

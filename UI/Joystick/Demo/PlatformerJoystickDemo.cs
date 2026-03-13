@@ -12,6 +12,7 @@ public partial class PlatformerJoystickDemo : Node2D
     private VirtualButton _jumpButton;
     private VirtualButton _attackButton;
     private VirtualButton _dashButton;
+    private VirtualButton _throwButton;
     private Label _infoLabel;
     private Control _touchControls;
 
@@ -24,6 +25,7 @@ public partial class PlatformerJoystickDemo : Node2D
         _jumpButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/JumpBtn");
         _attackButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/AttackBtn");
         _dashButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/DashBtn");
+        _throwButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/ThrowBtn");
         _infoLabel = GetNodeOrNull<Label>("TouchUI/InfoPanel/InfoLabel");
         _touchControls = GetNodeOrNull<Control>("TouchUI/TouchControls");
 
@@ -48,7 +50,8 @@ public partial class PlatformerJoystickDemo : Node2D
                 $"Joystick: ({output.X:F2}, {output.Y:F2})\n" +
                 $"Jump: {(_jumpButton?.IsPressed == true ? "ON" : "off")}  " +
                 $"Attack: {(_attackButton?.IsPressed == true ? "ON" : "off")}  " +
-                $"Dash: {(_dashButton?.IsPressed == true ? "ON" : "off")}";
+                $"Dash: {(_dashButton?.IsPressed == true ? "ON" : "off")}  " +
+                $"Throw: {(_throwButton?.IsPressed == true ? "ON" : "off")}";
         }
     }
 
