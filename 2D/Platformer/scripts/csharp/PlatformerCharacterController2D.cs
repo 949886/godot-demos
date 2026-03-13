@@ -71,7 +71,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private Color teleportFlashColor = new Color(1.0f, 0.18f, 0.18f, 0.95f);
     [Export] private Color teleportFlashCoreColor = new Color(1.0f, 1.0f, 1.0f, 0.98f);
     [Export] private float teleportFlashWidth = 14f;
-    [Export] private float teleportFlashDuration = 0.12f;
+    [Export] private float teleportFlashDuration = 0.03334f;
     [Export] private int teleportSparkCount = 18;
     [Export] private float teleportSparkScatter = 18f;
     [Export] private float teleportSparkDuration = 0.16f;
@@ -1074,10 +1074,28 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         var glowMidColor = teleportFlashColor;
         glowMidColor.A = 0.72f;
 
-        var glowWide = CreateFlashLine(from + normal * 2f, to + normal * 2f, teleportFlashWidth * 2.8f, glowWideColor);
-        var glowMid = CreateFlashLine(from - normal * 1.5f, to - normal * 1.5f, teleportFlashWidth * 1.8f, glowMidColor);
-        var core = CreateFlashLine(from, to, teleportFlashWidth * 0.42f, teleportFlashCoreColor);
-        var coreHot = CreateFlashLine(from, to, teleportFlashWidth * 0.18f, new Color(1f, 1f, 1f, 1f));
+        var glowWideStart = glowWideColor;
+        glowWideStart.A = 0.03f;
+        var glowWideEnd = glowWideColor;
+        glowWideEnd.A = 0.78f;
+
+        var glowMidStart = glowMidColor;
+        glowMidStart.A = 0.05f;
+        var glowMidEnd = glowMidColor;
+        glowMidEnd.A = 0.92f;
+
+        var coreStart = teleportFlashCoreColor;
+        coreStart.A = 0.08f;
+        var coreEnd = new Color(1f, 1f, 1f, 1f);
+
+        var hotStart = new Color(1f, 0.96f, 0.96f, 0.02f);
+        var hotEnd = new Color(1f, 1f, 1f, 1f);
+
+        // Sharp wedge profile: needle-like start and much thicker destination.
+        var glowWide = CreateFlashLine(from + normal * 2f, to + normal * 2f, teleportFlashWidth * 2.9f, glowWideColor, 0.04f, 2.1f, glowWideStart, glowWideEnd);
+        var glowMid = CreateFlashLine(from - normal * 1.5f, to - normal * 1.5f, teleportFlashWidth * 2.0f, glowMidColor, 0.045f, 2.25f, glowMidStart, glowMidEnd);
+        var core = CreateFlashLine(from, to, teleportFlashWidth * 0.21f, teleportFlashCoreColor, 0.03f, 3.8f, coreStart, coreEnd);
+        var coreHot = CreateFlashLine(from, to, teleportFlashWidth * 0.11f, new Color(1f, 1f, 1f, 1f), 0.02f, 4.2f, hotStart, hotEnd);
 
         flashRoot.AddChild(glowWide);
         flashRoot.AddChild(glowMid);
@@ -1097,7 +1115,15 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         tween.TweenCallback(Callable.From(() => flashRoot.QueueFree()));
     }
 
-    private Line2D CreateFlashLine(Vector2 from, Vector2 to, float width, Color color)
+    private Line2D CreateFlashLine(
+        Vector2 from,
+        Vector2 to,
+        float width,
+        Color color,
+        float startWidthScale = 1f,
+        float endWidthScale = 1f,
+        Color? startColor = null,
+        Color? endColor = null)
     {
         var line = new Line2D
         {
@@ -1105,6 +1131,18 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             DefaultColor = color,
             Antialiased = true
         };
+
+        // Make the beam thinner at the origin and thicker at the destination.
+        var widthCurve = new Curve();
+        widthCurve.AddPoint(new Vector2(0f, Mathf.Max(0.01f, startWidthScale)));
+        widthCurve.AddPoint(new Vector2(1f, Mathf.Max(0.01f, endWidthScale)));
+        line.WidthCurve = widthCurve;
+
+        var gradient = new Gradient();
+        gradient.AddPoint(0f, startColor ?? color);
+        gradient.AddPoint(1f, endColor ?? color);
+        line.Gradient = gradient;
+
         line.AddPoint(from);
         line.AddPoint(to);
         return line;
