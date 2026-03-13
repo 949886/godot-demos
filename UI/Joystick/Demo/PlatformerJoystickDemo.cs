@@ -11,10 +11,13 @@ public partial class PlatformerJoystickDemo : Node2D
     private VirtualJoystick _joystick;
     private VirtualButton _jumpButton;
     private VirtualButton _attackButton;
-    private VirtualButton _dashButton;
+    private VirtualProgressButton _dashButton;
     private VirtualDirectionButton _throwButton;
     private Label _infoLabel;
     private Control _touchControls;
+    
+    // Player reference for querying state
+    private PlatformerCharacterController2D _player;
 
     private bool _showInfo = true;
 
@@ -24,7 +27,7 @@ public partial class PlatformerJoystickDemo : Node2D
         _joystick = GetNodeOrNull<VirtualJoystick>("TouchUI/TouchControls/JoystickArea/Joystick");
         _jumpButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/JumpBtn");
         _attackButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/AttackBtn");
-        _dashButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/DashBtn");
+        _dashButton = GetNodeOrNull<VirtualProgressButton>("TouchUI/TouchControls/ButtonArea/DashBtn");
         _throwButton = GetNodeOrNull<VirtualDirectionButton>("TouchUI/TouchControls/ButtonArea/ThrowBtn");
         _infoLabel = GetNodeOrNull<Label>("TouchUI/InfoPanel/InfoLabel");
         _touchControls = GetNodeOrNull<Control>("TouchUI/TouchControls");
@@ -40,19 +43,25 @@ public partial class PlatformerJoystickDemo : Node2D
             infoPanel.AddThemeStyleboxOverride("panel", styleBox);
         }
 
+        _player = GetNodeOrNull<PlatformerCharacterController2D>("Playground/CharacterBody2D");
+
         // Connect the directional throw button directly to the Player controller.
-        if (_throwButton != null)
+        if (_throwButton != null && _player != null)
         {
-            var player = GetNodeOrNull<PlatformerCharacterController2D>("Playground/CharacterBody2D");
-            if (player != null)
-            {
-                _throwButton.DirectionActivated += player.OnVirtualThrowActivated;
-            }
+            _throwButton.DirectionActivated += _player.OnVirtualThrowActivated;
         }
     }
 
     public override void _Process(double delta)
     {
+        // Update Skill Button UI
+        if (_player != null && _dashButton != null)
+        {
+            _dashButton.ChargeCount = _player.DashCharges;
+            _dashButton.MaxChargeCount = _player.MaxDashCharges;
+            _dashButton.CooldownProgress = _player.DashRechargeProgress;
+        }
+
         if (_infoLabel != null && _showInfo)
         {
             var output = _joystick?.Output ?? Vector2.Zero;

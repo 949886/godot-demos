@@ -100,9 +100,14 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     private bool _hasJumpAttack = true;
 
     // Dash tracking
-    private float _dashTimer = 0f;
-    private int _dashCharges = 2;
-    private float _dashRechargeTimer = 0f;
+    private int _dashCharges;
+    private float _dashRechargeTimer;
+    private float _dashTimer;
+
+    // Public API for UI to display dash cooldown and charges
+    public int DashCharges => _dashCharges;
+    public int MaxDashCharges => maxDashCharges;
+    public float DashRechargeProgress => _dashCharges < maxDashCharges ? (_dashRechargeTimer / dashCooldown) : 0f;
 
     // Attack tracking
     private float _attackPressTime = 0f;
@@ -131,6 +136,8 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             animationTree.Active = false;
 
         animationPlayer.AnimationFinished += OnAnimationFinished;
+
+        _dashCharges = maxDashCharges;
 
         // Start in idle
         ChangeState(State.Idle);
