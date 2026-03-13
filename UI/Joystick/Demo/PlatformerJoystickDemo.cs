@@ -12,7 +12,7 @@ public partial class PlatformerJoystickDemo : Node2D
     private VirtualButton _jumpButton;
     private VirtualButton _attackButton;
     private VirtualButton _dashButton;
-    private VirtualButton _throwButton;
+    private VirtualDirectionButton _throwButton;
     private Label _infoLabel;
     private Control _touchControls;
 
@@ -25,7 +25,7 @@ public partial class PlatformerJoystickDemo : Node2D
         _jumpButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/JumpBtn");
         _attackButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/AttackBtn");
         _dashButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/DashBtn");
-        _throwButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/ThrowBtn");
+        _throwButton = GetNodeOrNull<VirtualDirectionButton>("TouchUI/TouchControls/ButtonArea/ThrowBtn");
         _infoLabel = GetNodeOrNull<Label>("TouchUI/InfoPanel/InfoLabel");
         _touchControls = GetNodeOrNull<Control>("TouchUI/TouchControls");
 
@@ -38,6 +38,16 @@ public partial class PlatformerJoystickDemo : Node2D
             styleBox.SetCornerRadiusAll(6);
             styleBox.SetContentMarginAll(8);
             infoPanel.AddThemeStyleboxOverride("panel", styleBox);
+        }
+
+        // Connect the directional throw button directly to the Player controller.
+        if (_throwButton != null)
+        {
+            var player = GetNodeOrNull<PlatformerCharacterController2D>("Playground/CharacterBody2D");
+            if (player != null)
+            {
+                _throwButton.DirectionActivated += player.OnVirtualThrowActivated;
+            }
         }
     }
 

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bbtwuq4eu5wdn" path="res://2D/Platformer/playground/playground.tscn" id="1_playground"]
 [ext_resource type="Script" uid="uid://dojbrdfi3mmgo" path="res://UI/Joystick/VirtualJoystick.cs" id="3_rjs0a"]
 [ext_resource type="Script" uid="uid://cohwrhr0myv2i" path="res://UI/Joystick/VirtualButton.cs" id="4_r6lw6"]
+[ext_resource type="Script" uid="uid://cceqgqql3drj7" path="res://UI/Joystick/VirtualDirectionButton.cs" id="5_newcs"]
 
 [node name="PlatformerTouchDemo" type="Node2D" unique_id=764427758]
 script = ExtResource("1_f2ujt")
@@ -65,7 +66,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="JumpBtn" type="Control" parent="TouchUI/TouchControls/ButtonArea" unique_id=509817671]
 custom_minimum_size = Vector2(80, 80)
-anchors_preset = 0
+layout_mode = 1
 anchor_left = 0.25
 anchor_right = 0.65
 anchor_bottom = 0.42
@@ -109,11 +110,10 @@ metadata/_edit_use_anchors_ = true
 [node name="ThrowBtn" type="Control" parent="TouchUI/TouchControls/ButtonArea" unique_id=-1905818964]
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
-anchor_left = 0.7033333
-anchor_right = 1.1033334
+anchor_left = -0.27
+anchor_right = 0.13
 anchor_bottom = 0.42
-script = ExtResource("4_r6lw6")
-Action = "throw"
+script = ExtResource("5_newcs")
 NormalColor = Color(0.5, 0.3, 0.1, 0.65)
 PressedColor = Color(0.8, 0.5, 0.2, 0.9)
 Label = "Y"

@@ -9,6 +9,8 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private AnimationPlayer animationPlayer;
     [Export] private AnimationTree animationTree;
 
+    private float? _pendingThrowAngle = null;
+
     #endregion
 
     #region Movement Parameters
@@ -765,7 +767,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         }
     }
 
-    private void InstantiateShuriken()
+    private void InstantiateShuriken(float? overrideAngle = null)
     {
         if (shurikenScene == null)
         {
@@ -779,8 +781,16 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         var flipOffset = new Vector2(shurikenSpawnOffset.X * _facingDirection, shurikenSpawnOffset.Y);
         shuriken.GlobalPosition = this.GlobalPosition + flipOffset;
         
-        Vector2 mousePos = GetGlobalMousePosition();
-        shuriken.Direction = (mousePos - shuriken.GlobalPosition).Normalized();
+        if (overrideAngle.HasValue)
+        {
+            shuriken.Direction = Vector2.Right.Rotated(overrideAngle.Value);
+        }
+        else
+        {
+            Vector2 mousePos = GetGlobalMousePosition();
+            shuriken.Direction = (mousePos - shuriken.GlobalPosition).Normalized();
+        }
+        
         shuriken.Rotation = shuriken.Direction.Angle();
     }
 
@@ -907,16 +917,36 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 break;
 
             case State.Throw:
-                var mousePosThrow = GetGlobalMousePosition();
-                UpdateFacing(mousePosThrow.X - this.GlobalPosition.X);
-                PlayAnimation("shuriken");
-                InstantiateShuriken();
+                if (_pendingThrowAngle.HasValue)
+                {
+                    UpdateFacing(Mathf.Cos(_pendingThrowAngle.Value));
+                    PlayAnimation("shuriken");
+                    InstantiateShuriken(_pendingThrowAngle);
+                    _pendingThrowAngle = null;
+                }
+                else
+                {
+                    var mousePosThrow = GetGlobalMousePosition();
+                    UpdateFacing(mousePosThrow.X - this.GlobalPosition.X);
+                    PlayAnimation("shuriken");
+                    InstantiateShuriken();
+                }
                 break;
             case State.AirThrow:
-                var mousePosAirThrow = GetGlobalMousePosition();
-                UpdateFacing(mousePosAirThrow.X - this.GlobalPosition.X);
-                PlayAnimation("shuriken_air");
-                InstantiateShuriken();
+                if (_pendingThrowAngle.HasValue)
+                {
+                    UpdateFacing(Mathf.Cos(_pendingThrowAngle.Value));
+                    PlayAnimation("shuriken_air");
+                    InstantiateShuriken(_pendingThrowAngle);
+                    _pendingThrowAngle = null;
+                }
+                else
+                {
+                    var mousePosAirThrow = GetGlobalMousePosition();
+                    UpdateFacing(mousePosAirThrow.X - this.GlobalPosition.X);
+                    PlayAnimation("shuriken_air");
+                    InstantiateShuriken();
+                }
                 break;
 
             case State.WallSlide:
@@ -1218,6 +1248,28 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// Handles throw event triggered directly by the on-screen Virtual Direction Button.
+    /// Needs an angle in Radians from the button.
+    /// </summary>
+    public void OnVirtualThrowActivated(float aimAngle)
+    {
+        // Don't throw if already throwing
+        if (_currentState == State.Throw || _currentState == State.AirThrow)
+            return;
+
+        _pendingThrowAngle = aimAngle;
+        
+        if (this.IsOnFloor())
+        {
+            ChangeState(State.Throw);
+        }
+        else
+        {
+            ChangeState(State.AirThrow);
+        }
     }
 
     #endregion
