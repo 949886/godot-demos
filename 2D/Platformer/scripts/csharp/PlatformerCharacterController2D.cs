@@ -9,8 +9,6 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private AnimationPlayer animationPlayer;
     [Export] private AnimationTree animationTree;
 
-    private float? _pendingThrowAngle = null;
-
     #endregion
 
     #region Movement Parameters
@@ -66,6 +64,19 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private PackedScene shurikenScene;
     [Export] private Vector2 shurikenSpawnOffset = new Vector2(10f, -15f);
 
+    [ExportGroup("Flying Thunder God")]
+    [Export] private int teleportAfterimageCount = 6;
+    [Export] private float teleportAfterimageFadeDuration = 0.16f;
+    [Export] private Color teleportAfterimageColor = new Color(1.0f, 0.35f, 0.35f, 0.72f);
+    [Export] private Color teleportFlashColor = new Color(1.0f, 0.18f, 0.18f, 0.95f);
+    [Export] private Color teleportFlashCoreColor = new Color(1.0f, 1.0f, 1.0f, 0.98f);
+    [Export] private float teleportFlashWidth = 14f;
+    [Export] private float teleportFlashDuration = 0.12f;
+    [Export] private int teleportSparkCount = 18;
+    [Export] private float teleportSparkScatter = 18f;
+    [Export] private float teleportSparkDuration = 0.16f;
+    [Export] private float teleportArrivalOffset = 12f;
+
     #endregion
 
     #region State Machine
@@ -120,6 +131,10 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
 
     // Animations that should loop (all others play once)
     private static readonly string[] LoopingAnimations = { "idle", "run", "fall" };
+    
+    private float? _pendingThrowAngle = null;
+    private Shuriken _activeShuriken = null;
+    private readonly RandomNumberGenerator _rng = new();
 
     #endregion
 
@@ -138,6 +153,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         animationPlayer.AnimationFinished += OnAnimationFinished;
 
         _dashCharges = maxDashCharges;
+        _rng.Randomize();
 
         // Start in idle
         ChangeState(State.Idle);
@@ -157,6 +173,10 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 _dashRechargeTimer = dashCooldown;
             }
         }
+
+        // Press throw again while a shuriken exists to teleport to it.
+        if (Input.IsActionJustPressed("throw") && TryFlyingThunderGodTeleport())
+            return;
 
         // Handle state-specific logic
         GD.Print($"Current State: {_currentState}");
@@ -781,7 +801,10 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
             GD.PrintErr("Shuriken Scene is null! You need to drag 'Shuriken.tscn' into the 'Shuriken Scene' property in the Inspector on your character!");
             return;
         }
-        
+
+        if (GodotObject.IsInstanceValid(_activeShuriken))
+            _activeShuriken.QueueFree();
+
         var shuriken = shurikenScene.Instantiate<Shuriken>();
         GetTree().CurrentScene.AddChild(shuriken);
         
@@ -799,6 +822,12 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
         }
         
         shuriken.Rotation = shuriken.Direction.Angle();
+        _activeShuriken = shuriken;
+        shuriken.TreeExiting += () =>
+        {
+            if (_activeShuriken == shuriken)
+                _activeShuriken = null;
+        };
     }
 
     private void ProcessDash(float dt)
@@ -960,6 +989,151 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
                 _hasJumpAttack = true;
                 PlayAnimation("fall"); // Reuse fall animation for wall slide
                 break;
+        }
+    }
+
+    #endregion
+
+    #region Flying Thunder God
+
+    private bool TryFlyingThunderGodTeleport()
+    {
+        if (!GodotObject.IsInstanceValid(_activeShuriken))
+            return false;
+
+        Vector2 startPos = GlobalPosition;
+        Vector2 targetPos = _activeShuriken.GlobalPosition;
+
+        if (_activeShuriken.IsStuck)
+            targetPos += _activeShuriken.StickNormal * teleportArrivalOffset;
+
+        SpawnTeleportTrail(startPos, targetPos);
+        SpawnTeleportFlash(startPos, targetPos);
+
+        GlobalPosition = targetPos;
+        Velocity = Vector2.Zero;
+
+        float deltaX = targetPos.X - startPos.X;
+        if (Mathf.Abs(deltaX) > 0.01f)
+            UpdateFacing(deltaX);
+
+        if (GodotObject.IsInstanceValid(_activeShuriken))
+            _activeShuriken.QueueFree();
+
+        ChangeState(IsOnFloor() ? State.Idle : State.Fall);
+        return true;
+    }
+
+    private void SpawnTeleportTrail(Vector2 from, Vector2 to)
+    {
+        if (animatedSprite?.SpriteFrames == null)
+            return;
+
+        var texture = animatedSprite.SpriteFrames.GetFrameTexture(animatedSprite.Animation, animatedSprite.Frame);
+        if (texture == null)
+            return;
+
+        int count = Mathf.Max(2, teleportAfterimageCount);
+        for (int i = 0; i < count; i++)
+        {
+            float t = count == 1 ? 1f : (float)i / (count - 1);
+            var ghostColor = teleportAfterimageColor;
+            ghostColor.A *= (1f - t * 0.6f);
+
+            var ghost = new Sprite2D
+            {
+                Texture = texture,
+                FlipH = animatedSprite.FlipH,
+                TextureFilter = CanvasItem.TextureFilterEnum.Nearest,
+                GlobalPosition = from.Lerp(to, t),
+                Modulate = ghostColor
+            };
+
+            GetTree().CurrentScene.AddChild(ghost);
+
+            var tween = ghost.CreateTween();
+            tween.TweenProperty(ghost, "modulate:a", 0.0f, teleportAfterimageFadeDuration);
+            tween.TweenCallback(Callable.From(() => ghost.QueueFree()));
+        }
+    }
+
+    private void SpawnTeleportFlash(Vector2 from, Vector2 to)
+    {
+        Vector2 diff = to - from;
+        if (diff.LengthSquared() < 0.0001f)
+            return;
+
+        Vector2 dir = diff.Normalized();
+        Vector2 normal = dir.Orthogonal();
+        var flashRoot = new Node2D();
+        GetTree().CurrentScene.AddChild(flashRoot);
+
+        // Outer glow layers for impact.
+        var glowWideColor = teleportFlashColor;
+        glowWideColor.A = 0.35f;
+        var glowMidColor = teleportFlashColor;
+        glowMidColor.A = 0.72f;
+
+        var glowWide = CreateFlashLine(from + normal * 2f, to + normal * 2f, teleportFlashWidth * 2.8f, glowWideColor);
+        var glowMid = CreateFlashLine(from - normal * 1.5f, to - normal * 1.5f, teleportFlashWidth * 1.8f, glowMidColor);
+        var core = CreateFlashLine(from, to, teleportFlashWidth * 0.42f, teleportFlashCoreColor);
+        var coreHot = CreateFlashLine(from, to, teleportFlashWidth * 0.18f, new Color(1f, 1f, 1f, 1f));
+
+        flashRoot.AddChild(glowWide);
+        flashRoot.AddChild(glowMid);
+        flashRoot.AddChild(core);
+        flashRoot.AddChild(coreHot);
+
+        SpawnTeleportSparks(flashRoot, from, to, dir, normal);
+
+        var tween = flashRoot.CreateTween();
+        tween.SetParallel(true);
+        tween.TweenProperty(flashRoot, "modulate:a", 0.0f, teleportFlashDuration);
+        tween.TweenProperty(glowWide, "width", 0.0f, teleportFlashDuration);
+        tween.TweenProperty(glowMid, "width", 0.0f, teleportFlashDuration);
+        tween.TweenProperty(core, "width", 0.0f, teleportFlashDuration);
+        tween.TweenProperty(coreHot, "width", 0.0f, teleportFlashDuration);
+        tween.SetParallel(false);
+        tween.TweenCallback(Callable.From(() => flashRoot.QueueFree()));
+    }
+
+    private Line2D CreateFlashLine(Vector2 from, Vector2 to, float width, Color color)
+    {
+        var line = new Line2D
+        {
+            Width = width,
+            DefaultColor = color,
+            Antialiased = true
+        };
+        line.AddPoint(from);
+        line.AddPoint(to);
+        return line;
+    }
+
+    private void SpawnTeleportSparks(Node2D parent, Vector2 from, Vector2 to, Vector2 dir, Vector2 normal)
+    {
+        int sparkCount = Mathf.Max(0, teleportSparkCount);
+        for (int i = 0; i < sparkCount; i++)
+        {
+            float t = _rng.RandfRange(0f, 1f);
+            float side = _rng.RandfRange(-teleportSparkScatter, teleportSparkScatter);
+            Vector2 center = from.Lerp(to, t) + normal * side;
+
+            float length = _rng.RandfRange(8f, 20f);
+            float angle = _rng.RandfRange(-0.9f, 0.9f);
+            Vector2 sparkDir = dir.Rotated(angle);
+            Vector2 p1 = center - sparkDir * (length * 0.5f);
+            Vector2 p2 = center + sparkDir * (length * 0.5f);
+
+            var sparkColor = teleportFlashCoreColor;
+            sparkColor.A = _rng.RandfRange(0.6f, 1f);
+            var spark = CreateFlashLine(p1, p2, _rng.RandfRange(1.3f, 3f), sparkColor);
+            parent.AddChild(spark);
+
+            var tw = spark.CreateTween();
+            tw.SetParallel(true);
+            tw.TweenProperty(spark, "modulate:a", 0.0f, teleportSparkDuration);
+            tw.TweenProperty(spark, "width", 0.0f, teleportSparkDuration);
         }
     }
 
@@ -1263,6 +1437,9 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     /// </summary>
     public void OnVirtualThrowActivated(float aimAngle)
     {
+        if (TryFlyingThunderGodTeleport())
+            return;
+
         // Don't throw if already throwing
         if (_currentState == State.Throw || _currentState == State.AirThrow)
             return;

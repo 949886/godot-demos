@@ -10,8 +10,11 @@ public partial class Shuriken : Area2D
     [Export] public Color AfterimageColor { get; set; } = new Color(0.1f, 0.5f, 1f, 0.6f);
 
     public Vector2 Direction { get; set; } = Vector2.Right;
+    public bool IsStuck => _stuck;
+    public Vector2 StickNormal => _stickNormal;
 
     private bool _stuck = false;
+    private Vector2 _stickNormal = Vector2.Zero;
     private float _afterimageTimer = 0f;
     private Sprite2D _sprite;
 
@@ -46,6 +49,7 @@ public partial class Shuriken : Area2D
             {
                 // Move exactly to the hit point and stick
                 GlobalPosition = (Vector2)result["position"];
+                _stickNormal = (Vector2)result["normal"];
                 StickToSurface();
                 return;
             }
