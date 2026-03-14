@@ -71,7 +71,7 @@ public partial class PlatformerCharacterController2D : CharacterBody2D
     [Export] private Color teleportFlashColor = new Color(1.0f, 0.18f, 0.18f, 0.95f);
     [Export] private Color teleportFlashCoreColor = new Color(1.0f, 1.0f, 1.0f, 0.98f);
     [Export] private float teleportFlashWidth = 14f;
-    [Export] private float teleportFlashDuration = 0.03334f;
+    [Export] private float teleportFlashDuration = 0.05f;
     [Export] private int teleportSparkCount = 18;
     [Export] private float teleportSparkScatter = 18f;
     [Export] private float teleportSparkDuration = 0.16f;
