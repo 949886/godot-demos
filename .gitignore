@@ -17,6 +17,7 @@ mono_crash.*.json
 
 # Misc
 .idea
+addons
 
 # Mac-specific ignores
 .DS_Store
