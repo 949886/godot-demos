@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://ius62rqgexsa"]
+
+[ext_resource type="Shader" uid="uid://dil8sm0gnwopa" path="res://shaders/distortion/distortion.gdshader" id="1_5jkgs"]
+[ext_resource type="Texture2D" uid="uid://bhie58srmr8xb" path="res://shaders/distortion/test1.png" id="2_uxhmr"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_nm7ka"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nm7ka"]
+noise = SubResource("FastNoiseLite_nm7ka")
+seamless = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wvhp1"]
+shader = ExtResource("1_5jkgs")
+shader_parameter/noise_img = SubResource("NoiseTexture2D_nm7ka")
+shader_parameter/speed = 0.02000000095
+shader_parameter/strength = 0.02
+shader_parameter/scale = 1.0
+shader_parameter/pixel_size = 1.0
+
+[node name="Control" type="Control" unique_id=338555541]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=137746343]
+material = SubResource("ShaderMaterial_wvhp1")
+layout_mode = 0
+offset_right = 1150.0
+offset_bottom = 643.0
+texture = ExtResource("2_uxhmr")
