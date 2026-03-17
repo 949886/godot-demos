@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dk6lbbjerksg0"]
+
+[ext_resource type="PackedScene" uid="uid://bbtwuq4eu5wdn" path="res://2D/Platformer/playground/playground.tscn" id="1"]
+[ext_resource type="Script" uid="uid://cjrrtfbnbps3t" path="res://2D/Platformer/scripts/gdscript/platformer_character_controller_2d.gd" id="2_er6e5"]
+[ext_resource type="PackedScene" path="res://2D/Platformer/characters/Shiro/Shuriken2.tscn" id="3"]
+
+[node name="PlaygroundGD" unique_id=713198630 instance=ExtResource("1")]
+
+[node name="CharacterBody2D" parent="." index="8" unique_id=2018056203]
+script = ExtResource("2_er6e5")
+move_speed = 200.0
+air_acceleration = 600.0
+air_friction = 200.0
+enable_double_jump = true
+jump_velocity = -400.0
+double_jump_velocity = -350.0
+max_fall_speed = 600.0
+jump_cut_multiplier = 0.5
+dash_speed = 1000.0
+dash_duration = 0.15
+dash_cooldown = 0.8
+max_dash_charges = 2
+afterimage_fade_duration = 0.3
+afterimage_color = Color(0.4, 0.8, 1, 0.6)
+enable_wall_jump = true
+wall_slide_gravity = 150.0
+wall_jump_horizontal_speed = 300.0
+wall_jump_vertical_speed = -380.0
+heavy_attack_hold_time = 0.3
+jump_attack_lift = 150.0
+shuriken_scene = ExtResource("3")
+shuriken_spawn_offset = Vector2(10, -15)
+teleport_afterimage_count = 6
+teleport_afterimage_fade_duration = 0.16
+teleport_afterimage_color = Color(1, 0.35, 0.35, 0.72)
+teleport_flash_color = Color(1, 0.18, 0.18, 0.95)
+teleport_flash_core_color = Color(1, 1, 1, 0.98)
+teleport_flash_width = 14.0
+teleport_flash_duration = 0.05
+teleport_spark_count = 18
+teleport_spark_scatter = 18.0
+teleport_spark_duration = 0.16
+teleport_arrival_offset = 12.0
