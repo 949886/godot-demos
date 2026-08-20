@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-const VIRTUAL_JOYSTICK_SCRIPT = preload("res://UI/Joystick/VirtualJoystick.gd")
+const VIRTUAL_JOYSTICK_SCRIPT = preload("res://UI/Joystick/CherryVirtualJoystick.gd")
 const VIRTUAL_BUTTON_SCRIPT = preload("res://UI/Joystick/VirtualButton.gd")
 
 signal joystick_input_changed(output: Vector2)
@@ -72,7 +72,7 @@ func _create_joystick() -> void:
 	_container.add_child(joystick_area)
 
 	_joystick = VIRTUAL_JOYSTICK_SCRIPT.new()
-	_joystick.name = "VirtualJoystick"
+	_joystick.name = "CherryVirtualJoystick"
 	_joystick.mode = joystick_mode
 	_joystick.visibility_mode = joystick_visibility
 	_joystick.base_radius = local_base_radius

@@ -1,6 +1,6 @@
 extends Node2D
 
-const VIRTUAL_JOYSTICK_SCRIPT = preload("res://UI/Joystick/VirtualJoystick.gd")
+const VIRTUAL_JOYSTICK_SCRIPT = preload("res://UI/Joystick/CherryVirtualJoystick.gd")
 const VIRTUAL_BUTTON_SCRIPT = preload("res://UI/Joystick/VirtualButton.gd")
 
 var _joystick

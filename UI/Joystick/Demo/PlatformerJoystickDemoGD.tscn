@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dw1xc7bm7yux4" path="res://UI/Joystick/Demo/PlatformerJoystickDemoGD.gd" id="1_qp64m"]
 [ext_resource type="PackedScene" uid="uid://dk6lbbjerksg0" path="res://2D/Platformer/playground/playground_gd.tscn" id="2_kb4u1"]
-[ext_resource type="Script" uid="uid://d2ugvpjmi7kcp" path="res://UI/Joystick/VirtualJoystick.gd" id="3_1h60o"]
+[ext_resource type="Script" uid="uid://d2ugvpjmi7kcp" path="res://UI/Joystick/CherryVirtualJoystick.gd" id="3_1h60o"]
 [ext_resource type="Script" uid="uid://nokxa4oj4hfo" path="res://UI/Joystick/VirtualButton.gd" id="4_l1xil"]
 [ext_resource type="Script" uid="uid://dpy6ou57luu5y" path="res://UI/Joystick/VirtualProgressButton.gd" id="5_lk7v5"]
 [ext_resource type="Script" uid="uid://ck32leiwbrngy" path="res://UI/Joystick/VirtualDirectionButton.gd" id="6_pqwsb"]

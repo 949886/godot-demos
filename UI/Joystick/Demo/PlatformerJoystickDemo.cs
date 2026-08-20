@@ -8,7 +8,7 @@ using VirtualJoystickPlugin;
 public partial class PlatformerJoystickDemo : Node2D
 {
     // Node references – resolved from the scene tree
-    private VirtualJoystick _joystick;
+    private CherryVirtualJoystick _joystick;
     private VirtualButton _jumpButton;
     private VirtualButton _attackButton;
     private VirtualProgressButton _dashButton;
@@ -24,7 +24,7 @@ public partial class PlatformerJoystickDemo : Node2D
     public override void _Ready()
     {
         // Resolve nodes placed in the .tscn scene
-        _joystick = GetNodeOrNull<VirtualJoystick>("TouchUI/TouchControls/JoystickArea/Joystick");
+        _joystick = GetNodeOrNull<CherryVirtualJoystick>("TouchUI/TouchControls/JoystickArea/Joystick");
         _jumpButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/JumpBtn");
         _attackButton = GetNodeOrNull<VirtualButton>("TouchUI/TouchControls/ButtonArea/AttackBtn");
         _dashButton = GetNodeOrNull<VirtualProgressButton>("TouchUI/TouchControls/ButtonArea/DashBtn");
